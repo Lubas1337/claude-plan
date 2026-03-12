@@ -35,7 +35,8 @@
         "./commands/add-part.md",
         "./commands/research.md",
         "./commands/done.md",
-        "./commands/list.md"
+        "./commands/list.md",
+        "./commands/setup.md"
       ],
       "skills": [
         "./skills/plan"

@@ -12,7 +12,7 @@ claude plugin marketplace add Lubas1337/claude-plan
 claude plugin install claude-plan
 ```
 
-## Команды (7)
+## Команды (8)
 
 | Команда | Описание |
 |---------|----------|
@@ -23,6 +23,7 @@ claude plugin install claude-plan
 | `/claude-plan:research` | Создать research note или ADR в плане |
 | `/claude-plan:done` | Пометить часть как done, каскадно обновить blocked->ready, записать в CHANGELOG |
 | `/claude-plan:list` | Показать все планы с прогрессом |
+| `/claude-plan:setup` | Добавить инструкции для AI в CLAUDE.md проекта |
 
 ## Когда использовать
 
