@@ -1,8 +1,0 @@
-{
-  "name": "claude-plan",
-  "description": "Lightweight project planning system with multi-plan support, dependency tracking, cascade unblocking, parallelism, research notes, and ADR",
-  "version": "1.0.0",
-  "author": {
-    "name": "Abylay"
-  }
-}

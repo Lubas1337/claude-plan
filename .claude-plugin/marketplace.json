@@ -1,0 +1,45 @@
+{
+  "name": "claude-plan",
+  "owner": {
+    "name": "Abylay"
+  },
+  "metadata": {
+    "description": "Lightweight project planning system for Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "claude-plan",
+      "source": "./",
+      "description": "Lightweight project planning system with multi-plan support, dependency tracking, cascade unblocking, parallelism, research notes, and ADR",
+      "version": "1.0.0",
+      "author": {
+        "name": "Abylay"
+      },
+      "homepage": "https://github.com/Lubas1337/claude-plan",
+      "repository": "https://github.com/Lubas1337/claude-plan",
+      "license": "MIT",
+      "keywords": [
+        "planning",
+        "project-management",
+        "dependency-tracking",
+        "research",
+        "adr"
+      ],
+      "category": "productivity",
+      "strict": false,
+      "commands": [
+        "./commands/plan-init.md",
+        "./commands/plan-status.md",
+        "./commands/plan-next.md",
+        "./commands/plan-add-part.md",
+        "./commands/plan-research.md",
+        "./commands/plan-done.md",
+        "./commands/plan-list.md"
+      ],
+      "skills": [
+        "./skills/plan"
+      ]
+    }
+  ]
+}
