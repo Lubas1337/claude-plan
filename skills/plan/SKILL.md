@@ -245,3 +245,68 @@ Minor version = номер завершённой части. Major = 1 когд
 | Средний проект, 3-10 частей | **`.plan/`** |
 | Большой проект, 10+ фаз, research-heavy | `/gsd:new-project` |
 | Эфемерный план на одну сессию | `/plan` (plan mode) |
+
+## Context Gathering
+
+Команды, создающие или выполняющие план, должны учитывать контекст проекта из `.claude/` и `CLAUDE.md`.
+
+> **Важно**: `CLAUDE.md` (проекта и персональный) уже загружены в system-reminder — НЕ читай их повторно. Используй информацию из контекста напрямую.
+
+### Процедура: Project Context (для init, add-part)
+
+Используй при создании нового плана или добавлении частей.
+
+1. **Архитектура** (из CLAUDE.md в контексте):
+   - Извлеки: Stack, Project Structure, Architecture, Anti-Patterns, Verification checklist
+   - Учитывай при разбиении на части (domain → application → infrastructure)
+
+2. **Project memory**:
+   - Определи путь: `pwd` → замени `/` на `-` → `~/.claude/projects/<hash>/memory/MEMORY.md`
+   - Если файл есть — прочитай индекс и релевантные linked файлы
+   - Ищи: прошлые архитектурные решения, фидбэк по workflow, контекст проекта
+   - Если файла нет — пропусти
+
+3. **Доступные skills**:
+   - `ls .claude/skills/` — запомни имена (НЕ читай содержимое)
+   - Используй для аннотаций задач: `Skill hint: <name>` в Notes META.md
+
+4. **Структура кодебазы**:
+   - `ls` исходных директорий (internal/, pkg/, cmd/) — реальные пакеты
+   - Используй при заполнении Files Affected
+
+### Процедура: Execution Context (для next)
+
+Используй перед выполнением задач части.
+
+1. **Rules — coding conventions**:
+   - Прочитай `.claude/rules/common/coding-style.md` — стиль кода, immutability, error handling
+   - Прочитай `.claude/rules/common/testing.md` — TDD workflow, coverage требования
+   - Прочитай `.claude/rules/common/security.md` — security checklist
+
+2. **Language-specific rules** — определи язык из Files Affected в META.md:
+   - `*.go` → `.claude/rules/golang/coding-style.md`, `.claude/rules/golang/testing.md`
+   - `*.ts` → `.claude/rules/typescript/coding-style.md`, `.claude/rules/typescript/testing.md`
+   - Читай максимум 3 файла для одного языка
+
+3. **Relevant skills**:
+   - `ls .claude/skills/` — проверь наличие релевантных навыков
+   - Если META.md содержит `Skill hint:` — активируй указанный skill
+
+4. **Project memory** — проверь на фидбэк (та же процедура что в Project Context, шаг 2)
+
+### Процедура: Research Context (для research)
+
+Используй при проведении исследований.
+
+1. **Stack и архитектура** (из CLAUDE.md в контексте) — учитывай при выборе решений
+
+2. **Существующие паттерны**:
+   - Поиск в кодебазе: `grep` по ключевым словам в `internal/`, `pkg/`
+   - Проверь зависимости в `go.mod` / `package.json`
+   - Проверь `.plan/*/research/` и `adr/` — прошлые исследования по теме
+
+3. **Skills как справка**:
+   - Если тема совпадает с навыком (api-design, go-senior-developer, etc.) — прочитай его SKILL.md как reference material
+   - `ls .claude/skills/` — полный список
+
+4. **Project memory** — прошлые решения и контекст (процедура из Project Context, шаг 2)

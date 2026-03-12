@@ -39,15 +39,20 @@ Ready parts:
 1. Обнови META.md: `Status: ready` → `Status: in_progress`
 2. Обнови MASTER.md: статус части в таблице
 3. Прочитай все task files части
+4. **Загрузи контекст** — выполни процедуру **"Execution Context"** из SKILL.md:
+   - Прочитай `.claude/rules/common/coding-style.md`, `testing.md`, `security.md`
+   - Определи язык из Files Affected → прочитай `.claude/rules/<lang>/` (макс. 3 файла)
+   - Проверь project memory на релевантный фидбэк
 
 #### 3. Выполнение задач
 
 Для каждой задачи в порядке номера:
 1. Прочитай task file
-2. Выполни Action
-3. Проверь Acceptance Criteria
-4. Обнови task file: `Status: done`, заполни `Result`
-5. Обнови META.md: статус задачи в таблице
+2. Выполни Action (соблюдай загруженные правила: TDD, coding style, security checklist)
+3. Если META.md содержит `Skill hint:` — активируй указанный skill при выполнении
+4. Проверь Acceptance Criteria
+5. Обнови task file: `Status: done`, заполни `Result`
+6. Обнови META.md: статус задачи в таблице
 
 #### 4. Завершение части
 
