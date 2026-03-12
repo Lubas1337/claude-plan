@@ -2,7 +2,7 @@
 description: "Показать все планы с прогрессом"
 ---
 
-# /plan-list — Список всех планов
+# /claude-plan:list — Список всех планов
 
 ## Инструкции
 
@@ -10,7 +10,7 @@ description: "Показать все планы с прогрессом"
 
 ### Алгоритм
 
-1. **Проверь существование** `.plan/` директории. Если нет — сообщи и предложи `/plan-init`.
+1. **Проверь существование** `.plan/` директории. Если нет — сообщи и предложи `/claude-plan:init`.
 
 2. **Найди все планы**: директории в `.plan/` содержащие `MASTER.md` (исключая `research/`).
 
@@ -47,5 +47,5 @@ Total: 3 plans, 7/14 parts done (50%)
 Если нет планов:
 ```
 No plans found in .plan/
-Use /plan-init to create your first plan.
+Use /claude-plan:init to create your first plan.
 ```

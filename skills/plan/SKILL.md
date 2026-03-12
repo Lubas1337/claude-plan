@@ -10,7 +10,7 @@ origin: custom
 
 ## When to Activate
 
-- Работа с `/plan-init`, `/plan-status`, `/plan-next`, `/plan-add-part`, `/plan-research`, `/plan-done`, `/plan-list`
+- Работа с `/claude-plan:init`, `/claude-plan:status`, `/claude-plan:next`, `/claude-plan:add-part`, `/claude-plan:research`, `/claude-plan:done`, `/claude-plan:list`
 - Создание или обновление файлов в `.plan/`
 - Планирование проекта средней сложности (между plan mode и GSD)
 
@@ -201,7 +201,7 @@ accepted | superseded | deprecated
 
 ## Логика выбора следующей части
 
-При `/plan-next` выбирай часть в порядке приоритета:
+При `/claude-plan:next` выбирай часть в порядке приоритета:
 
 1. **Sequential bottleneck** — часть, которая блокирует больше всего других частей
 2. **S before L** — при прочих равных, маленькие части (`S`) перед большими (`L/XL`)
@@ -217,16 +217,16 @@ accepted | superseded | deprecated
 2. **Все зависимости `done`** — обе части не зависят от незавершённых
 3. **Поле `Parallel`** — явно указано `with NN` в META.md
 
-При `/plan-next` если есть параллельные части — предложи запуск через worktree.
+При `/claude-plan:next` если есть параллельные части — предложи запуск через worktree.
 
 ## Интеграция с plan mode
 
-При выполнении `/plan-next`:
+При выполнении `/claude-plan:next`:
 1. Читай MASTER.md → определи ready части
 2. Читай META.md выбранной части → получи контекст
 3. Читай task files последовательно (~100 строк на задачу)
 4. Выполняй задачи, обновляй статусы в META.md и task files
-5. После завершения всех задач → запусти `/plan-done`
+5. После завершения всех задач → запусти `/claude-plan:done`
 
 ## Версионирование
 

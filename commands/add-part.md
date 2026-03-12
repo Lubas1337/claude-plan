@@ -2,7 +2,7 @@
 description: "Добавить новую часть в существующий план"
 ---
 
-# /plan-add-part — Добавление части в план
+# /claude-plan:add-part — Добавление части в план
 
 ## Инструкции
 
@@ -11,8 +11,8 @@ description: "Добавить новую часть в существующий
 ### Входные данные
 
 Аргумент: `$ARGUMENTS` — название плана и описание части.
-- `/plan-add-part ai-features "Caching layer" --depends 02,03 --size M`
-- `/plan-add-part ai-features` — интерактивный режим
+- `/claude-plan:add-part ai-features "Caching layer" --depends 02,03 --size M`
+- `/claude-plan:add-part ai-features` — интерактивный режим
 
 ### Алгоритм
 

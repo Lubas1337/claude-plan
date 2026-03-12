@@ -29,13 +29,13 @@
       "category": "productivity",
       "strict": false,
       "commands": [
-        "./commands/plan-init.md",
-        "./commands/plan-status.md",
-        "./commands/plan-next.md",
-        "./commands/plan-add-part.md",
-        "./commands/plan-research.md",
-        "./commands/plan-done.md",
-        "./commands/plan-list.md"
+        "./commands/init.md",
+        "./commands/status.md",
+        "./commands/next.md",
+        "./commands/add-part.md",
+        "./commands/research.md",
+        "./commands/done.md",
+        "./commands/list.md"
       ],
       "skills": [
         "./skills/plan"

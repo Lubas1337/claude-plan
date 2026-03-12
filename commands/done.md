@@ -2,7 +2,7 @@
 description: "Пометить часть как done, каскадно обновить blocked→ready, записать в CHANGELOG"
 ---
 
-# /plan-done — Завершение части
+# /claude-plan:done — Завершение части
 
 ## Инструкции
 
@@ -11,8 +11,8 @@ description: "Пометить часть как done, каскадно обно
 ### Входные данные
 
 Аргумент: `$ARGUMENTS` — план и номер части.
-- `/plan-done ai-features 03` — завершить часть 03
-- `/plan-done ai-features` — завершить текущую in_progress часть
+- `/claude-plan:done ai-features 03` — завершить часть 03
+- `/claude-plan:done ai-features` — завершить текущую in_progress часть
 
 ### Алгоритм
 

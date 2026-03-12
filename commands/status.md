@@ -2,7 +2,7 @@
 description: "Показать статус плана — обновить INDEX.md и STATUS.md"
 ---
 
-# /plan-status — Дашборд плана
+# /claude-plan:status — Дашборд плана
 
 ## Инструкции
 

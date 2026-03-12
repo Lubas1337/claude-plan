@@ -2,7 +2,7 @@
 description: "Создать research note или ADR в плане"
 ---
 
-# /plan-research — Исследование
+# /claude-plan:research — Исследование
 
 ## Инструкции
 
@@ -11,9 +11,9 @@ description: "Создать research note или ADR в плане"
 ### Входные данные
 
 Аргумент: `$ARGUMENTS` — тема и опции.
-- `/plan-research ai-features "Выбор message broker"` — research note
-- `/plan-research ai-features "Выбор message broker" --adr` — ADR
-- `/plan-research "Общая тема"` — в общий research/ (не привязан к плану)
+- `/claude-plan:research ai-features "Выбор message broker"` — research note
+- `/claude-plan:research ai-features "Выбор message broker" --adr` — ADR
+- `/claude-plan:research "Общая тема"` — в общий research/ (не привязан к плану)
 
 ### Алгоритм
 

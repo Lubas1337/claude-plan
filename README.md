@@ -16,13 +16,13 @@ claude plugin install claude-plan
 
 | Команда | Описание |
 |---------|----------|
-| `/plan-init` | Создать новый план в `.plan/` с MASTER.md и начальными частями |
-| `/plan-status` | Показать статус плана — обновить INDEX.md и STATUS.md |
-| `/plan-next` | Взять следующую ready часть плана, выполнить задачи, обновить статусы |
-| `/plan-add-part` | Добавить новую часть в существующий план |
-| `/plan-research` | Создать research note или ADR в плане |
-| `/plan-done` | Пометить часть как done, каскадно обновить blocked->ready, записать в CHANGELOG |
-| `/plan-list` | Показать все планы с прогрессом |
+| `/claude-plan:init` | Создать новый план в `.plan/` с MASTER.md и начальными частями |
+| `/claude-plan:status` | Показать статус плана — обновить INDEX.md и STATUS.md |
+| `/claude-plan:next` | Взять следующую ready часть плана, выполнить задачи, обновить статусы |
+| `/claude-plan:add-part` | Добавить новую часть в существующий план |
+| `/claude-plan:research` | Создать research note или ADR в плане |
+| `/claude-plan:done` | Пометить часть как done, каскадно обновить blocked->ready, записать в CHANGELOG |
+| `/claude-plan:list` | Показать все планы с прогрессом |
 
 ## Когда использовать
 
@@ -36,10 +36,10 @@ claude plugin install claude-plan
 ## Workflow
 
 ```
-1. /plan-init my-project       # Создать план
-2. /plan-next my-project       # Взять следующую часть
-3. /plan-done my-project 01    # Пометить часть как done
-4. /plan-status my-project     # Проверить прогресс
+1. /claude-plan:init my-project       # Создать план
+2. /claude-plan:next my-project       # Взять следующую часть
+3. /claude-plan:done my-project 01    # Пометить часть как done
+4. /claude-plan:status my-project     # Проверить прогресс
 ```
 
 ## Структура .plan/
