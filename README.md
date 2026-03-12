@@ -5,7 +5,11 @@ Lightweight project planning system for Claude Code.
 ## Установка
 
 ```bash
-claude plugin install github:abylay/claude-plan
+# 1. Добавить marketplace
+claude plugin marketplace add Lubas1337/claude-plan
+
+# 2. Установить плагин
+claude plugin install claude-plan
 ```
 
 ## Команды (7)
