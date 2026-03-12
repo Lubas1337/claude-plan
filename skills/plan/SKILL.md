@@ -310,3 +310,146 @@ Minor version = номер завершённой части. Major = 1 когд
    - `ls .claude/skills/` — полный список
 
 4. **Project memory** — прошлые решения и контекст (процедура из Project Context, шаг 2)
+
+## Agent Orchestration
+
+Команды плана могут делегировать выполнение частей и задач агентам Claude Code. Это позволяет: специализированное выполнение (tdd-guide для TDD, architect для ADR), параллельное исполнение через worktrees, и экономию контекста оркестратора.
+
+> **Обратная совместимость**: если поле `Agent:` отсутствует в META.md — всё работает как раньше (inline execution).
+
+### Поле Agent в META.md
+
+```yaml
+- **Agent**: auto              # auto | none | <specific-type>
+```
+
+Значения:
+- `none` — выполнять inline (текущее поведение, значение по умолчанию)
+- `auto` — автоматический выбор агента по контексту (Size, Files Affected, Skill hint)
+- Конкретный тип: `tdd-guide`, `code-reviewer`, `Explore`, `Plan`, `architect`, `security-reviewer`, `build-error-resolver`
+
+> Если `Delegatable: yes` указано без `Agent:` — интерпретируй как `Agent: auto`.
+
+### Agent Catalog
+
+| Тип агента | Когда использовать | Модель | Для чего в .plan/ |
+|------------|-------------------|--------|-------------------|
+| `tdd-guide` | Части с кодом, TDD workflow | sonnet | Основной executor для M/L частей |
+| `code-reviewer` | Review после выполнения части | sonnet | Post-execution review |
+| `Explore` | Исследование кодебазы | sonnet | Research, поиск паттернов |
+| `Plan` | Планирование, декомпозиция | sonnet | Разбиение XL частей |
+| `architect` | Архитектурные решения, ADR | opus | Research с --adr |
+| `security-reviewer` | Части с auth, API, secrets | sonnet | Security-sensitive части |
+| `build-error-resolver` | Ошибки сборки при выполнении | sonnet | Fallback при build failures |
+
+### Процедура: Select Agent
+
+Автовыбор агента при `Agent: auto`.
+
+1. Если `Agent: <конкретный-тип>` → использовать указанный
+2. Если `Agent: auto` (или `Delegatable: yes` без `Agent:`):
+   - Если Skill hint содержит "security" → `security-reviewer`
+   - Если задачи содержат "test" / "TDD" и Size >= M → `tdd-guide`
+   - Если Size = S → `none` (inline дешевле, чем запуск агента)
+   - Если Size = L/XL → `tdd-guide`
+   - Default для M → `tdd-guide`
+3. Если `Agent: none` или поле отсутствует → `none` (inline)
+
+### Процедура: Build Agent Prompt
+
+Построение prompt для Agent tool. Агент получает свежий контекст — передай ему ВСЁ необходимое.
+
+```
+<objective>
+Выполни Part {NN}: {Name} из плана {plan-name}.
+
+Цель: {goal из META.md}
+
+Задачи (выполняй по порядку):
+{нумерованный список задач с Action и Acceptance Criteria из task files}
+</objective>
+
+<files_to_read>
+{путь к META.md}
+{пути ко всем task files}
+{пути из Files Affected — реальные исходные файлы}
+{.claude/rules/common/coding-style.md}
+{.claude/rules/common/testing.md}
+{language-specific rules если определяется из Files Affected}
+</files_to_read>
+
+<plan_context>
+Plan: {plan-name}
+Part: {NN}-{slug}
+Branch: {branch из META.md}
+Предыдущие done-части: {список}
+</plan_context>
+
+<success_criteria>
+- Все задачи выполнены, Status: done
+- Acceptance Criteria каждой задачи удовлетворены
+- Task files обновлены: Result заполнен
+- META.md обновлён: статусы задач в таблице
+</success_criteria>
+
+<output_format>
+По завершении верни:
+PART_RESULT: complete
+Tasks: {выполнено}/{всего}
+Files Modified: {список}
+Summary: {1-2 предложения}
+
+Если заблокировано:
+PART_RESULT: blocked
+Task: {какая задача}
+Reason: {почему}
+</output_format>
+```
+
+### Процедура: Launch Agent
+
+1. Построй prompt процедурой "Build Agent Prompt"
+2. Определи модель: `sonnet` (для `architect` — `opus`)
+3. Определи изоляцию:
+   - Один агент → без isolation
+   - Параллельные агенты → `isolation: "worktree"`
+4. Вызови Agent tool:
+   ```
+   Agent(
+     subagent_type: {тип},
+     prompt: {построенный prompt},
+     model: {модель},
+     isolation: {"worktree" если параллель},
+     run_in_background: {true если параллель}
+   )
+   ```
+
+### Процедура: Handle Agent Result
+
+1. Проверь вывод агента на `PART_RESULT: complete` или `PART_RESULT: blocked`
+2. Если **complete**:
+   - Прочитай META.md — убедись что статусы обновлены
+   - Если агент не обновил → обнови сам
+   - Запусти каскадную логику (как в done.md шаг 3)
+   - Обнови MASTER.md, CHANGELOG.md, STATUS.md, INDEX.md
+3. Если **blocked**:
+   - Оставь META.md как `in_progress`
+   - Сообщи пользователю причину и предложи: skip, исследовать, остановиться
+4. Если вывод непарсим:
+   - Прочитай META.md и task files — определи реальное состояние
+   - Действуй по фактическому состоянию файлов
+
+### Процедура: Parallel Agent Launch
+
+Предусловия (ВСЕ должны быть true):
+1. Две+ части с Status: `ready`
+2. Поле `Parallel: with NN` указывает друг на друга
+3. `Files Affected` НЕ пересекаются
+4. Все части имеют `Agent:` != `none`
+
+Шаги:
+1. Для каждой параллельной части построй отдельный prompt
+2. Запусти ВСЕ агенты в ОДНОМ сообщении (несколько Agent tool calls)
+3. Каждый с `isolation: "worktree"` и `run_in_background: true`
+4. По мере завершения — обработай результат каждого процедурой "Handle Agent Result"
+5. После завершения всех — запусти каскад
