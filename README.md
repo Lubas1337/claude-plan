@@ -12,7 +12,7 @@ claude plugin marketplace add Lubas1337/claude-plan
 claude plugin install claude-plan
 ```
 
-## Команды (8)
+## Команды (9)
 
 | Команда | Описание |
 |---------|----------|
@@ -24,6 +24,7 @@ claude plugin install claude-plan
 | `/claude-plan:done` | Пометить часть как done, каскадно обновить blocked->ready, записать в CHANGELOG |
 | `/claude-plan:list` | Показать все планы с прогрессом |
 | `/claude-plan:setup` | Добавить инструкции для AI в CLAUDE.md проекта |
+| `/claude-plan:web` | Запустить Kanban веб-доску для визуализации планов |
 
 ## Когда использовать
 
