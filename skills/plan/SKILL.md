@@ -25,6 +25,7 @@ origin: custom
 │   ├── MASTER.md                # Обзор, таблица частей, цели
 │   ├── STATUS.md                # Авто-генерируемый дашборд
 │   ├── CHANGELOG.md             # Версионирование, суммари выполненных тасков
+│   ├── GUIDE.md                 # Авто-генерируемый гайд (при завершении плана)
 │   ├── research/                # Исследования по этому плану
 │   │   ├── 000-pre-plan.md      # Pre-plan research (если был Step 1c)
 │   │   ├── 001-topic.md
@@ -57,10 +58,10 @@ origin: custom
 ```markdown
 # Plans
 
-| Plan | Status | Progress | Updated |
-|------|--------|----------|---------|
-| [ai-features](ai-features/MASTER.md) | active | 3/7 done | 2026-03-12 |
-| [lms-integration](lms-integration/MASTER.md) | paused | 1/4 done | 2026-03-10 |
+| Plan | Status | Progress | Guide | Updated |
+|------|--------|----------|-------|---------|
+| [ai-features](ai-features/MASTER.md) | completed | 7/7 done | [GUIDE](ai-features/GUIDE.md) | 2026-03-12 |
+| [lms-integration](lms-integration/MASTER.md) | paused | 1/4 done | - | 2026-03-10 |
 ```
 
 Статусы плана: `active`, `paused`, `completed`, `archived`.
@@ -237,6 +238,44 @@ accepted | superseded | deprecated
 ### Part 02: Domain — done
 - Entities: Order, User, Product
 - Domain services: OrderService, PricingService
+```
+
+### GUIDE.md
+
+Генерируется автоматически при завершении плана (`/claude-plan:done`, шаг 7).
+
+```markdown
+# Guide: <Plan Name>
+
+Сгенерировано: YYYY-MM-DD | Версия: v1.0.0
+
+## Обзор
+{Vision из MASTER.md}
+
+### Цели
+{Goals из MASTER.md}
+
+## Что было сделано
+
+### Part NN: Name
+{Goal из META.md}
+**Результат:** {2-3 пункта из task Results}
+**Затронутые файлы:** {Files Affected из META.md}
+
+{Для skipped-частей: "Part NN: Name — skipped"}
+
+## Как тестировать
+
+### Part NN: Name
+**{Task name}:**
+{Verification из task file}
+Критерии приёмки: {Acceptance Criteria как checklist}
+
+## Архитектурные решения
+{Таблица ADR если есть, иначе опустить секцию}
+
+## Ограничения и вне scope
+{Constraints и Out of Scope из MASTER.md, опустить если пусто}
 ```
 
 ## Логика выбора следующей части

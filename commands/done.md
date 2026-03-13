@@ -94,6 +94,26 @@ description: "Пометить часть как done, каскадно обно
 2. CHANGELOG.md: версия `v1.0.0`
 3. Поздравь пользователя
 
+#### 7. Генерация GUIDE.md
+
+Если план завершён (шаг 6 сработал):
+
+1. **Собери данные**:
+   - Прочитай MASTER.md: Vision, Goals, Constraints, Out of Scope
+   - Прочитай CHANGELOG.md: summary по каждой части
+   - Прочитай все `parts/*/META.md`: Goal, Files Affected
+   - Прочитай все task files (`parts/*/NN-task.md`) не-skipped частей: Verification, Acceptance Criteria, Result
+   - Проверь наличие `research/adr/` — если есть, прочитай ADR файлы
+
+2. **Создай `.plan/<plan-name>/GUIDE.md`** по формату из SKILL.md
+
+3. **Обнови INDEX.md**: добавь ссылку `[GUIDE](plan-name/GUIDE.md)` в колонку Guide
+
+4. Покажи пользователю:
+   ```
+   📖 GUIDE.md создан: .plan/<plan-name>/GUIDE.md
+   ```
+
 ### Вывод
 
 ```
@@ -109,4 +129,9 @@ Progress: 3/7 done (43%)
 ▓▓▓▓░░░░░░ 43%
 
 Next ready: 04-workers (S), 05-monitoring (M)
+```
+
+При завершении плана (шаг 6+7) добавить:
+```
+📖 Guide: .plan/<plan-name>/GUIDE.md
 ```
