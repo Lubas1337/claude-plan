@@ -6,6 +6,8 @@ description: "Создать research note или ADR в плане"
 
 ## Инструкции
 
+> При вопросах пользователю — используй `AskUserQuestion` tool с опциями (селектор), а не текстовые вопросы.
+
 Создаёт research note или ADR (Architecture Decision Record) в плане. Skill "plan" содержит форматы файлов и конвенции. Используй его как справку.
 
 ### Входные данные
@@ -82,5 +84,8 @@ Created: .plan/ai-features/research/002-message-broker.md
 Summary:
 - Рассмотрены: Kafka, NATS, RabbitMQ
 - Решение: NATS (простота, Go-native, достаточная производительность)
-- Создать ADR? (y/n)
+
+Спроси пользователя через `AskUserQuestion` с опциями:
+- "Создать ADR" — создать Architecture Decision Record
+- "Пропустить" — не создавать ADR
 ```
