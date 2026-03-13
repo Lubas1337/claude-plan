@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchPlans } from "./api";
+import { fetchPlans, fetchProjectPlans } from "./api";
 import { Board } from "./components/Board";
 import { Dashboard } from "./components/Dashboard";
 import { Header } from "./components/Header";
@@ -12,6 +12,8 @@ export function App() {
   const [view, setView] = useState<View>({ level: "dashboard" });
   const [taskModal, setTaskModal] = useState<TaskModalState | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeProject, setActiveProject] = useState<string | null>(null);
+  const [activeProjectName, setActiveProjectName] = useState("");
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -20,17 +22,27 @@ export function App() {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
+  // Load plans — from active project or local .plan/
   useEffect(() => {
-    fetchPlans()
+    setLoading(true);
+    setError("");
+    const load = activeProject
+      ? fetchProjectPlans(activeProject)
+      : fetchPlans();
+    load
       .then((data) => setPlans(data.plans))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, []);
+  }, [activeProject]);
 
   const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
 
-  if (loading) return <div className="loading">Loading plans...</div>;
-  if (error) return <div className="loading">Error: {error}</div>;
+  const handleProjectSelect = (dirName: string, projectName: string) => {
+    setActiveProject(dirName);
+    setActiveProjectName(projectName);
+    setView({ level: "dashboard" });
+    setTaskModal(null);
+  };
 
   const currentPlan =
     view.level === "plan"
@@ -42,17 +54,34 @@ export function App() {
       <Sidebar
         open={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
+        activeProject={activeProject}
+        onProjectSelect={handleProjectSelect}
       />
 
       <div className="app-main">
         <Header
           plan={currentPlan}
-          onBack={view.level === "plan" ? () => setView({ level: "dashboard" }) : null}
+          projectName={activeProjectName || null}
+          onBack={
+            view.level === "plan"
+              ? () => setView({ level: "dashboard" })
+              : activeProject
+                ? () => {
+                    setActiveProject(null);
+                    setActiveProjectName("");
+                    setView({ level: "dashboard" });
+                  }
+                : null
+          }
           theme={theme}
           onThemeToggle={toggleTheme}
         />
 
-        {view.level === "dashboard" ? (
+        {loading ? (
+          <div className="loading">Loading plans...</div>
+        ) : error ? (
+          <div className="loading">Error: {error}</div>
+        ) : view.level === "dashboard" ? (
           <Dashboard
             plans={plans}
             onPlanSelect={(name) => setView({ level: "plan", planName: name })}
@@ -80,6 +109,7 @@ export function App() {
           planName={taskModal.planName}
           partNumber={taskModal.partNumber}
           taskNumber={taskModal.taskNumber}
+          projectDirName={activeProject ?? undefined}
           onClose={() => setTaskModal(null)}
         />
       )}

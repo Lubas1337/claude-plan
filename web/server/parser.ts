@@ -216,39 +216,66 @@ export async function parseTaskFile(
   const taskFile = taskEntries.find(
     (name: string) => name.startsWith(`${taskNumber}-`) && name.endsWith(".md"),
   );
-  if (!taskFile) return null;
 
-  const content = await readFile(join(partPath, taskFile), "utf-8");
+  // If dedicated task file exists, parse it
+  if (taskFile) {
+    const content = await readFile(join(partPath, taskFile), "utf-8");
 
-  // Parse title: # Task NN: Name
-  const titleMatch = content.match(/^#\s+Task\s+\d+:\s*(.+)$/m);
-  const name = titleMatch?.[1]?.trim() ?? taskFile.replace(/\.md$/, "");
+    const titleMatch = content.match(/^#\s+Task\s+\d+:\s*(.+)$/m);
+    const name = titleMatch?.[1]?.trim() ?? taskFile.replace(/\.md$/, "");
 
-  const status = getFieldValue(content, "Status") || "ready";
-  const action = getSection(content, "Action");
-  const resultText = getSection(content, "Result");
+    const status = getFieldValue(content, "Status") || "ready";
+    const action = getSection(content, "Action");
+    const resultText = getSection(content, "Result");
 
-  // Acceptance Criteria — list items
-  const acSection = getSection(content, "Acceptance Criteria");
-  const acceptanceCriteria = acSection
-    .split("\n")
-    .filter((l) => l.trim().startsWith("- "))
-    .map((l) => l.replace(/^-\s*/, "").trim());
+    const acSection = getSection(content, "Acceptance Criteria");
+    const acceptanceCriteria = acSection
+      .split("\n")
+      .filter((l) => l.trim().startsWith("- "))
+      .map((l) => l.replace(/^-\s*/, "").trim());
 
-  // Files Affected — list items
-  const faSection = getSection(content, "Files Affected");
+    const faSection = getSection(content, "Files Affected");
+    const filesAffected = faSection
+      .split("\n")
+      .filter((l) => l.trim().startsWith("- "))
+      .map((l) => l.replace(/^-\s*/, "").trim());
+
+    return {
+      number: taskNumber,
+      name,
+      status,
+      action,
+      acceptanceCriteria,
+      result: resultText,
+      filesAffected,
+    };
+  }
+
+  // Fallback: read task from META.md table
+  const metaPath = join(partPath, "META.md");
+  if (!(await exists(metaPath))) return null;
+
+  const metaContent = await readFile(metaPath, "utf-8");
+  const meta = parseMeta(metaContent);
+  const taskRow = meta.tasks.find((t) => t.number === taskNumber);
+  if (!taskRow) return null;
+
+  // Extract extra info from META.md sections
+  const goalText = getSection(metaContent, "Goal");
+  const faSection = getSection(metaContent, "Files Affected");
   const filesAffected = faSection
     .split("\n")
     .filter((l) => l.trim().startsWith("- "))
     .map((l) => l.replace(/^-\s*/, "").trim());
+  const notesText = getSection(metaContent, "Notes");
 
   return {
     number: taskNumber,
-    name,
-    status,
-    action,
-    acceptanceCriteria,
-    result: resultText,
+    name: taskRow.name,
+    status: taskRow.status,
+    action: "",
+    acceptanceCriteria: [],
+    result: notesText || goalText,
     filesAffected,
   };
 }

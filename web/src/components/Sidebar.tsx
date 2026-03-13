@@ -5,6 +5,8 @@ import type { ProjectSessions } from "../types";
 interface SidebarProps {
   open: boolean;
   onToggle: () => void;
+  activeProject: string | null;
+  onProjectSelect: (dirName: string, projectName: string) => void;
 }
 
 function formatDuration(ms: number): string {
@@ -27,7 +29,12 @@ function formatDate(iso: string): string {
   return d.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
-export function Sidebar({ open, onToggle }: SidebarProps) {
+export function Sidebar({
+  open,
+  onToggle,
+  activeProject,
+  onProjectSelect,
+}: SidebarProps) {
   const [projects, setProjects] = useState<ProjectSessions[]>([]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
@@ -38,7 +45,6 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
     fetchSessions()
       .then((data) => {
         setProjects(data.projects);
-        // Auto-expand first project
         if (data.projects.length > 0) {
           setExpanded(new Set([data.projects[0].dirName]));
         }
@@ -47,7 +53,8 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
       .finally(() => setLoading(false));
   }, [open]);
 
-  const toggleProject = (dirName: string) => {
+  const toggleExpand = (dirName: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     setExpanded((prev) => {
       const next = new Set(prev);
       if (next.has(dirName)) next.delete(dirName);
@@ -56,36 +63,45 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
     });
   };
 
+  // Only show projects that have .plan/ directories
+  const projectsWithPlans = projects.filter((p) => p.hasPlan);
+
   return (
     <>
       <button
         className={`sidebar-toggle ${open ? "open" : ""}`}
         onClick={onToggle}
-        title="Sessions"
+        title="Projects"
       >
         {open ? "\u2715" : "\u2630"}
       </button>
 
       <aside className={`sidebar ${open ? "open" : ""}`}>
         <div className="sidebar-header">
-          <span className="sidebar-title">Sessions</span>
+          <span className="sidebar-title">Projects</span>
         </div>
 
         <div className="sidebar-body">
           {loading ? (
             <div className="sidebar-loading">Loading...</div>
-          ) : projects.length === 0 ? (
-            <div className="sidebar-loading">No sessions</div>
+          ) : projectsWithPlans.length === 0 ? (
+            <div className="sidebar-loading">No projects with plans</div>
           ) : (
-            projects.map((project) => {
+            projectsWithPlans.map((project) => {
               const isExpanded = expanded.has(project.dirName);
+              const isActive = activeProject === project.dirName;
               return (
                 <div key={project.dirName} className="sidebar-project">
                   <button
-                    className="sidebar-project-header"
-                    onClick={() => toggleProject(project.dirName)}
+                    className={`sidebar-project-header ${isActive ? "active" : ""}`}
+                    onClick={() =>
+                      onProjectSelect(project.dirName, project.projectName)
+                    }
                   >
-                    <span className="sidebar-chevron">
+                    <span
+                      className="sidebar-chevron"
+                      onClick={(e) => toggleExpand(project.dirName, e)}
+                    >
                       {isExpanded ? "\u25BE" : "\u25B8"}
                     </span>
                     <span className="sidebar-project-name">

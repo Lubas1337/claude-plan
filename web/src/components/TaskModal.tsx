@@ -6,6 +6,7 @@ interface TaskModalProps {
   planName: string;
   partNumber: string;
   taskNumber: string;
+  projectDirName?: string;
   onClose: () => void;
 }
 
@@ -22,16 +23,17 @@ export function TaskModal({
   planName,
   partNumber,
   taskNumber,
+  projectDirName,
   onClose,
 }: TaskModalProps) {
   const [task, setTask] = useState<TaskDetail | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchTaskDetail(planName, partNumber, taskNumber)
+    fetchTaskDetail(planName, partNumber, taskNumber, projectDirName)
       .then(setTask)
       .catch((err) => setError(err.message));
-  }, [planName, partNumber, taskNumber]);
+  }, [planName, partNumber, taskNumber, projectDirName]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

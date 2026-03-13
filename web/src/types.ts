@@ -67,6 +67,7 @@ export interface ProjectSessions {
   dirName: string;
   projectPath: string;
   projectName: string;
+  hasPlan: boolean;
   sessions: Session[];
 }
 

@@ -3,12 +3,19 @@ import { ProgressBar } from "./ProgressBar";
 
 interface HeaderProps {
   plan: Plan | null;
+  projectName: string | null;
   onBack: (() => void) | null;
   theme: "dark" | "light";
   onThemeToggle: () => void;
 }
 
-export function Header({ plan, onBack, theme, onThemeToggle }: HeaderProps) {
+export function Header({
+  plan,
+  projectName,
+  onBack,
+  theme,
+  onThemeToggle,
+}: HeaderProps) {
   const doneParts = plan?.parts.filter((p) => p.status === "done").length ?? 0;
   const totalParts = plan?.parts.length ?? 0;
 
@@ -21,6 +28,9 @@ export function Header({ plan, onBack, theme, onThemeToggle }: HeaderProps) {
           </button>
         )}
         <span className="header-logo">.plan/</span>
+        {projectName && !plan && (
+          <span className="header-plan-name">{projectName}</span>
+        )}
         {plan && (
           <span className="header-plan-name">{plan.name}</span>
         )}
