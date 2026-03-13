@@ -5,9 +5,10 @@ const COLUMNS: PartStatus[] = ["blocked", "ready", "in_progress", "done", "skipp
 
 interface BoardProps {
   parts: Part[];
+  onTaskClick: (partNumber: string, taskNumber: string) => void;
 }
 
-export function Board({ parts }: BoardProps) {
+export function Board({ parts, onTaskClick }: BoardProps) {
   const grouped: Record<PartStatus, Part[]> = {
     blocked: [],
     ready: [],
@@ -29,7 +30,7 @@ export function Board({ parts }: BoardProps) {
   return (
     <div className="board">
       {COLUMNS.map((status) => (
-        <Column key={status} status={status} parts={grouped[status]} />
+        <Column key={status} status={status} parts={grouped[status]} onTaskClick={onTaskClick} />
       ))}
     </div>
   );

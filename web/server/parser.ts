@@ -1,6 +1,6 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
-import type { Part, PartSize, PartStatus, Plan, TaskSummary } from "../src/types.js";
+import type { Part, PartSize, PartStatus, Plan, TaskDetail, TaskSummary } from "../src/types.js";
 
 // --- Markdown table parser ---
 
@@ -192,6 +192,65 @@ async function exists(path: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+export async function parseTaskFile(
+  planDir: string,
+  planName: string,
+  partNumber: string,
+  taskNumber: string,
+): Promise<TaskDetail | null> {
+  const partsDir = join(planDir, planName, "parts");
+  if (!(await exists(partsDir))) return null;
+
+  // Find part directory starting with partNumber-
+  const partEntries = await readdir(partsDir, { withFileTypes: true });
+  const partDir = partEntries.find(
+    (e: { isDirectory(): boolean; name: string }) =>
+      e.isDirectory() && e.name.startsWith(`${partNumber}-`),
+  );
+  if (!partDir) return null;
+
+  const partPath = join(partsDir, partDir.name);
+  const taskEntries = await readdir(partPath);
+  const taskFile = taskEntries.find(
+    (name: string) => name.startsWith(`${taskNumber}-`) && name.endsWith(".md"),
+  );
+  if (!taskFile) return null;
+
+  const content = await readFile(join(partPath, taskFile), "utf-8");
+
+  // Parse title: # Task NN: Name
+  const titleMatch = content.match(/^#\s+Task\s+\d+:\s*(.+)$/m);
+  const name = titleMatch?.[1]?.trim() ?? taskFile.replace(/\.md$/, "");
+
+  const status = getFieldValue(content, "Status") || "ready";
+  const action = getSection(content, "Action");
+  const resultText = getSection(content, "Result");
+
+  // Acceptance Criteria — list items
+  const acSection = getSection(content, "Acceptance Criteria");
+  const acceptanceCriteria = acSection
+    .split("\n")
+    .filter((l) => l.trim().startsWith("- "))
+    .map((l) => l.replace(/^-\s*/, "").trim());
+
+  // Files Affected — list items
+  const faSection = getSection(content, "Files Affected");
+  const filesAffected = faSection
+    .split("\n")
+    .filter((l) => l.trim().startsWith("- "))
+    .map((l) => l.replace(/^-\s*/, "").trim());
+
+  return {
+    number: taskNumber,
+    name,
+    status,
+    action,
+    acceptanceCriteria,
+    result: resultText,
+    filesAffected,
+  };
 }
 
 export async function parsePlans(planDir: string): Promise<Plan[]> {

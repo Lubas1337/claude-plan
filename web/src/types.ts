@@ -41,3 +41,46 @@ export interface Plan {
 export interface PlansResponse {
   plans: Plan[];
 }
+
+// Navigation (state-based, no router)
+export type View =
+  | { level: "dashboard" }
+  | { level: "plan"; planName: string };
+
+export interface TaskModalState {
+  planName: string;
+  partNumber: string;
+  taskNumber: string;
+}
+
+// Sessions
+export interface Session {
+  id: string;
+  startTime: string;
+  summary: string;
+  messageCount: number;
+  toolsUsed: string[];
+  durationMs: number;
+}
+
+export interface ProjectSessions {
+  dirName: string;
+  projectPath: string;
+  projectName: string;
+  sessions: Session[];
+}
+
+export interface SessionsResponse {
+  projects: ProjectSessions[];
+}
+
+// Full task data (from task files)
+export interface TaskDetail {
+  number: string;
+  name: string;
+  status: string;
+  action: string;
+  acceptanceCriteria: string[];
+  result: string;
+  filesAffected: string[];
+}

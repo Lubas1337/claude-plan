@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.6.0 — 2026-03-13
+
+### 3-уровневый Kanban: Dashboard, Plan Detail, Task Modal
+
+- **Dashboard** — обзор всех планов с карточками, прогрессом и сводкой статусов
+- **Plan Detail** — Kanban-доска с расширяемыми карточками и инлайн-списком задач
+- **Task Modal** — модалка с деталями задачи (action, acceptance criteria, result, files affected)
+- Навигация через state (dashboard → plan → task modal, кнопка назад)
+- Новый API endpoint `GET /api/plans/:name/parts/:partNumber/tasks/:taskNumber`
+- `parseTaskFile()` — парсинг task-файлов из part-директорий
+- Header упрощён: убраны табы, добавлена кнопка назад и имя плана
+- **Sidebar Sessions** — боковая панель с Claude Code сессиями по проектам
+  - Группировка по директории проекта (из `~/.claude/projects/`)
+  - Дата, кол-во сообщений, длительность, использованные инструменты
+  - Первое сообщение как краткое описание сессии
+  - Collapsible проекты, сортировка по дате
+- Новый API endpoint `GET /api/sessions`
+- `sessions-parser.ts` — парсинг JSONL файлов сессий
+
 ## v1.5.0 — 2026-03-13
 
 ### Автоцикл --yolo

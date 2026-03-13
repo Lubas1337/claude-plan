@@ -2,40 +2,27 @@ import type { Plan } from "../types";
 import { ProgressBar } from "./ProgressBar";
 
 interface HeaderProps {
-  plans: Plan[];
-  activePlan: string;
-  onPlanSelect: (name: string) => void;
+  plan: Plan | null;
+  onBack: (() => void) | null;
   theme: "dark" | "light";
   onThemeToggle: () => void;
 }
 
-export function Header({
-  plans,
-  activePlan,
-  onPlanSelect,
-  theme,
-  onThemeToggle,
-}: HeaderProps) {
-  const plan = plans.find((p) => p.name === activePlan);
+export function Header({ plan, onBack, theme, onThemeToggle }: HeaderProps) {
   const doneParts = plan?.parts.filter((p) => p.status === "done").length ?? 0;
   const totalParts = plan?.parts.length ?? 0;
 
   return (
     <header className="header">
       <div className="header-left">
+        {onBack && (
+          <button className="back-button" onClick={onBack}>
+            &larr;
+          </button>
+        )}
         <span className="header-logo">.plan/</span>
-        {plans.length > 1 && (
-          <nav className="plan-tabs">
-            {plans.map((p) => (
-              <button
-                key={p.name}
-                className={`plan-tab ${p.name === activePlan ? "active" : ""}`}
-                onClick={() => onPlanSelect(p.name)}
-              >
-                {p.name}
-              </button>
-            ))}
-          </nav>
+        {plan && (
+          <span className="header-plan-name">{plan.name}</span>
         )}
       </div>
       <div className="header-right">

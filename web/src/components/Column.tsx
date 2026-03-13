@@ -22,9 +22,10 @@ const STATUS_COLORS: Record<PartStatus, string> = {
 interface ColumnProps {
   status: PartStatus;
   parts: Part[];
+  onTaskClick: (partNumber: string, taskNumber: string) => void;
 }
 
-export function Column({ status, parts }: ColumnProps) {
+export function Column({ status, parts, onTaskClick }: ColumnProps) {
   const color = STATUS_COLORS[status];
   const label = STATUS_LABELS[status] ?? status;
 
@@ -41,7 +42,9 @@ export function Column({ status, parts }: ColumnProps) {
         {parts.length === 0 ? (
           <div className="column-empty">No items</div>
         ) : (
-          parts.map((part) => <Card key={part.number} part={part} />)
+          parts.map((part) => (
+            <Card key={part.number} part={part} onTaskClick={onTaskClick} />
+          ))
         )}
       </div>
     </div>
