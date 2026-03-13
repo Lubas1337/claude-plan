@@ -1,77 +1,110 @@
 # claude-plan
 
-Lightweight project planning system for Claude Code.
+> Autonomous project planning plugin for Claude Code with Kanban dashboard
 
-## Установка
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/Lubas1337/claude-plan/actions/workflows/ci.yml/badge.svg)](https://github.com/Lubas1337/claude-plan/actions/workflows/ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/Lubas1337/claude-plan)](https://github.com/Lubas1337/claude-plan/releases)
+[![GitHub stars](https://img.shields.io/github/stars/Lubas1337/claude-plan)](https://github.com/Lubas1337/claude-plan/stargazers)
+
+<!-- ![Demo](docs/demo.gif) -->
+
+## Features
+
+- **Multi-plan support** — manage multiple plans simultaneously with a shared index
+- **Dependency tracking** — automatic blocked/ready status based on part dependencies
+- **Cascade unblocking** — completing a part automatically unblocks dependents
+- **Kanban web dashboard** — 3-level visualization: Dashboard, Plan Detail, Task Modal
+- **Agent orchestration** — delegate parts to Claude Code agents with auto-selection
+- **Auto-cycle (`--yolo`)** — continuous execution of parts without intervention
+- **Parallel execution** — run independent parts via git worktrees
+- **Research & ADR** — research notes and Architecture Decision Records per plan
+- **Session sidebar** — browse Claude Code sessions grouped by project
+
+## Quick Start
 
 ```bash
-# 1. Добавить marketplace
+# Add marketplace source
 claude plugin marketplace add Lubas1337/claude-plan
 
-# 2. Установить плагин
+# Install the plugin
 claude plugin install claude-plan
+
+# Create your first plan
+/claude-plan:init my-project
 ```
 
-## Команды (9)
+## Commands
 
-| Команда | Описание |
-|---------|----------|
-| `/claude-plan:init` | Создать новый план в `.plan/` с MASTER.md и начальными частями |
-| `/claude-plan:status` | Показать статус плана — обновить INDEX.md и STATUS.md |
-| `/claude-plan:next` | Взять следующую ready часть плана, выполнить задачи, обновить статусы |
-| `/claude-plan:add-part` | Добавить новую часть в существующий план |
-| `/claude-plan:research` | Создать research note или ADR в плане |
-| `/claude-plan:done` | Пометить часть как done, каскадно обновить blocked->ready, записать в CHANGELOG |
-| `/claude-plan:list` | Показать все планы с прогрессом |
-| `/claude-plan:setup` | Добавить инструкции для AI в CLAUDE.md проекта |
-| `/claude-plan:web` | Запустить Kanban веб-доску для визуализации планов |
+| Command | Description |
+|---------|-------------|
+| `/claude-plan:init` | Create a new plan in `.plan/` with MASTER.md and initial parts |
+| `/claude-plan:status` | Show plan status — update INDEX.md and STATUS.md |
+| `/claude-plan:next` | Pick the next ready part, execute tasks, update statuses |
+| `/claude-plan:add-part` | Add a new part to an existing plan |
+| `/claude-plan:research` | Create a research note or ADR in the plan |
+| `/claude-plan:done` | Mark part as done, cascade unblock dependent parts, write to CHANGELOG |
+| `/claude-plan:list` | Show all plans with progress |
+| `/claude-plan:setup` | Add AI instructions to the project's CLAUDE.md |
+| `/claude-plan:web` | Launch Kanban web dashboard for plan visualization |
 
-## Когда использовать
+## When to Use
 
-| Ситуация | Инструмент |
-|----------|-----------|
-| Быстрая правка, 1-2 файла | Прямое редактирование |
-| Средний проект, 3-10 частей | **`.plan/`** (этот плагин) |
-| Большой проект, 10+ фаз | GSD workflow |
-| Эфемерный план на одну сессию | Plan mode |
+| Scenario | Tool |
+|----------|------|
+| Quick edit, 1-2 files | Direct editing |
+| Medium project, 3-10 parts | **`.plan/`** (this plugin) |
+| Large project, 10+ phases | GSD workflow |
+| Ephemeral plan for one session | Plan mode |
 
-## Workflow
+## Workflow Example
 
 ```
-1. /claude-plan:init my-project       # Создать план
-2. /claude-plan:next my-project       # Взять следующую часть
-3. /claude-plan:done my-project 01    # Пометить часть как done
-4. /claude-plan:status my-project     # Проверить прогресс
+1. /claude-plan:init my-project       # Create plan with parts
+2. /claude-plan:next my-project       # Execute next ready part
+3. /claude-plan:done my-project 01    # Mark part as done → unblocks dependents
+4. /claude-plan:status my-project     # Check progress dashboard
+5. /claude-plan:web                   # Open Kanban board in browser
 ```
 
-## Структура .plan/
+## Kanban Dashboard
+
+The web dashboard (`/claude-plan:web`) provides a 3-level visualization:
+
+1. **Dashboard** — overview of all plans with progress cards
+2. **Plan Detail** — Kanban board with expandable cards and inline task lists
+3. **Task Modal** — task details with action, acceptance criteria, result, and affected files
+
+Additional features:
+- **Sessions Sidebar** — browse Claude Code sessions grouped by project directory
+
+## `.plan/` Structure
 
 ```
 .plan/
-├── INDEX.md                     # Индекс всех планов
-├── research/                    # Общие исследования
+├── INDEX.md                     # Index of all plans
+├── research/                    # Shared research notes
 ├── <plan-name>/
-│   ├── MASTER.md                # Обзор, таблица частей, цели
-│   ├── STATUS.md                # Авто-генерируемый дашборд
-│   ├── CHANGELOG.md             # Версионирование
+│   ├── MASTER.md                # Overview, parts table, goals
+│   ├── STATUS.md                # Auto-generated dashboard
+│   ├── CHANGELOG.md             # Versioning
 │   ├── research/
 │   │   └── adr/                 # Architecture Decision Records
 │   └── parts/
 │       └── NN-slug/
-│           ├── META.md          # Метаданные: статус, зависимости
-│           ├── 01-task.md
+│           ├── META.md          # Metadata: status, dependencies
+│           ├── 01-task.md       # Individual task files
 │           └── 02-task.md
 ```
 
-## Возможности
+## Contributing
 
-- **Мульти-планы** — несколько планов одновременно с общим INDEX.md
-- **Dependency tracking** — зависимости между частями, автоматический blocked/ready
-- **Cascade unblocking** — завершение части автоматически разблокирует зависимые
-- **Параллельность** — части без пересечений файлов можно выполнять через worktrees
-- **Research & ADR** — исследования и Architecture Decision Records привязаны к планам
-- **Версионирование** — автоматический CHANGELOG при завершении частей
+See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for development setup and guidelines.
 
 ## License
 
-MIT
+[MIT](LICENSE)
+
+---
+
+[Документация на русском](./docs/README-ru.md)
