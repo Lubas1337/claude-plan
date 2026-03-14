@@ -1,6 +1,6 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
-import type { Part, PartSize, PartStatus, Plan, TaskDetail, TaskSummary } from "../src/types.js";
+import type { Part, PartSize, PartStatus, Plan, ProjectVision, RoadmapPhase, TaskDetail, TaskSummary } from "../src/types.js";
 
 // --- Markdown table parser ---
 
@@ -181,6 +181,72 @@ function parseMeta(content: string): MetaData {
   }));
 
   return { status, depends, parallel, size, agent, goal, tasks };
+}
+
+// --- PROJECT.md parser ---
+
+function parseProject(content: string): ProjectVision {
+  // Name from title
+  const titleMatch = content.match(/^#\s+Project:\s*(.+)$/m);
+  const name = titleMatch?.[1]?.trim() ?? "";
+
+  // Mission
+  const missionSection = getSection(content, "Mission");
+  const mission = missionSection.split("\n")[0] ?? "";
+
+  // Vision
+  const visionSection = getSection(content, "Vision");
+  const vision = visionSection.split("\n")[0] ?? "";
+
+  // Strategic Goals — numbered list
+  const goalsSection = getSection(content, "Strategic Goals");
+  const strategicGoals = goalsSection
+    .split("\n")
+    .filter((l) => /^\d+\./.test(l.trim()))
+    .map((l) => l.replace(/^\d+\.\s*/, "").trim());
+
+  // Roadmap table
+  const roadmapRows = parseMarkdownTable(content, /Phase/i);
+  const roadmap: RoadmapPhase[] = roadmapRows.map((row, idx) => {
+    const phaseName = row["phase"] ?? "";
+    const plansRaw = row["plans"] ?? "";
+    const plans = plansRaw === "-" || plansRaw === ""
+      ? []
+      : plansRaw.split(",").map((p) => {
+          const linkMatch = p.match(/\[([^\]]+)\]/);
+          return linkMatch ? linkMatch[1] : p.trim();
+        });
+    const goal = row["goal"] ?? "";
+    const status = (row["status"] ?? "planned") as RoadmapPhase["status"];
+    // Extract number from phase name like "1. Foundation"
+    const numMatch = phaseName.match(/^(\d+)/);
+    const number = numMatch ? parseInt(numMatch[1], 10) : idx + 1;
+    const cleanName = phaseName.replace(/^\d+\.\s*/, "").trim();
+    return { number, name: cleanName, plans, goal, status };
+  });
+
+  // Constraints — list with -
+  const constraintsSection = getSection(content, "Constraints");
+  const constraints = constraintsSection
+    .split("\n")
+    .filter((l) => l.trim().startsWith("- "))
+    .map((l) => l.replace(/^-\s*/, "").trim());
+
+  // Key Decisions — list with -
+  const decisionsSection = getSection(content, "Key Decisions");
+  const keyDecisions = decisionsSection
+    .split("\n")
+    .filter((l) => l.trim().startsWith("- "))
+    .map((l) => l.replace(/^-\s*/, "").trim());
+
+  return { name, mission, vision, strategicGoals, roadmap, constraints, keyDecisions };
+}
+
+export async function parseProjectVision(planDir: string): Promise<ProjectVision | null> {
+  const projectPath = join(planDir, "PROJECT.md");
+  if (!(await exists(projectPath))) return null;
+  const content = await readFile(projectPath, "utf-8");
+  return parseProject(content);
 }
 
 // --- Main parser ---

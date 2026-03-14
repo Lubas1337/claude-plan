@@ -439,6 +439,200 @@ body {
   color: var(--text-secondary);
 }
 
+/* Project Overview */
+.project-overview {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin: 24px 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.project-overview-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.project-overview-name {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text);
+}
+
+.project-overview-mission {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.project-overview-vision {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  font-style: italic;
+}
+
+/* Project Roadmap */
+.project-roadmap {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 4px 0;
+}
+
+.roadmap-phase {
+  flex: 1;
+  min-width: 180px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--text-muted);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.roadmap-phase-done {
+  border-left-color: var(--status-done);
+}
+
+.roadmap-phase-active {
+  border-left-color: var(--status-in-progress);
+}
+
+.roadmap-phase-planned {
+  border-left-color: var(--text-muted);
+}
+
+.roadmap-phase-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.roadmap-phase-number {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  background: var(--bg);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.roadmap-phase-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+
+.roadmap-phase-status {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.roadmap-phase-status-done {
+  color: var(--status-done);
+  background: color-mix(in srgb, var(--status-done) 15%, transparent);
+}
+
+.roadmap-phase-status-active {
+  color: var(--status-in-progress);
+  background: color-mix(in srgb, var(--status-in-progress) 15%, transparent);
+}
+
+.roadmap-phase-status-planned {
+  color: var(--text-muted);
+  background: var(--bg);
+}
+
+.roadmap-phase-goal {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+.roadmap-phase-plans {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.roadmap-plan-badge {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.roadmap-plan-badge:hover {
+  background: var(--card-hover);
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+.roadmap-plan-badge.completed {
+  color: var(--status-done);
+  border-color: color-mix(in srgb, var(--status-done) 30%, transparent);
+}
+
+.roadmap-plan-progress {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* Project Goals */
+.project-goals {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.project-goals-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.project-goals-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.project-goals-list li::before {
+  content: "→ ";
+  color: var(--text-muted);
+}
+
 /* Dashboard */
 .dashboard {
   display: grid;

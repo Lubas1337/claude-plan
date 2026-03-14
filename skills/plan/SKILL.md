@@ -10,7 +10,7 @@ origin: custom
 
 ## When to Activate
 
-- Работа с `/claude-plan:init`, `/claude-plan:status`, `/claude-plan:next`, `/claude-plan:add-part`, `/claude-plan:research`, `/claude-plan:done`, `/claude-plan:list`
+- Работа с `/claude-plan:init`, `/claude-plan:status`, `/claude-plan:next`, `/claude-plan:add-part`, `/claude-plan:research`, `/claude-plan:done`, `/claude-plan:list`, `/claude-plan:project`
 - Создание или обновление файлов в `.plan/`
 - Планирование проекта средней сложности (между plan mode и GSD)
 
@@ -18,6 +18,7 @@ origin: custom
 
 ```
 .plan/
+├── PROJECT.md                   # Проектный контекст и roadmap (опционально)
 ├── INDEX.md                     # Индекс всех планов, общий дашборд
 ├── research/                    # Общие исследования (не привязанные к плану)
 │   └── 001-topic.md
@@ -65,6 +66,42 @@ origin: custom
 ```
 
 Статусы плана: `active`, `paused`, `completed`, `archived`.
+
+### PROJECT.md
+
+Расположение: `.plan/PROJECT.md` — один на проект, общий для всех планов. Опциональный.
+
+```markdown
+# Project: <Name>
+
+## Mission
+Зачем существует этот проект? (1-2 предложения)
+
+## Vision
+Куда он идёт? Как выглядит успех? (1-3 предложения)
+
+## Strategic Goals
+
+1. **Название цели** — описание
+2. **Название цели** — описание
+3. **Название цели** — описание
+
+## Roadmap
+
+| Phase | Plans | Goal | Status |
+|-------|-------|------|--------|
+| 1. Foundation | [auth-system](auth-system/MASTER.md) | Базовая инфраструктура | done |
+| 2. Core Features | [ai-features](ai-features/MASTER.md), [search](search/MASTER.md) | Ценность для пользователей | active |
+| 3. Scale | - | Производительность и мониторинг | planned |
+
+Статусы фаз: `planned`, `active`, `done`.
+
+## Constraints
+- ...
+
+## Key Decisions
+- YYYY-MM-DD: Описание решения (ссылка на ADR если есть)
+```
 
 ### MASTER.md
 
@@ -352,6 +389,17 @@ Minor version = номер завершённой части. Major = 1 когд
 4. **Структура кодебазы**:
    - `ls` исходных директорий (internal/, pkg/, cmd/) — реальные пакеты
    - Используй при заполнении Files Affected
+
+### Процедура: Project Vision Context
+
+Используй при создании/обновлении планов для alignment со стратегией проекта.
+
+1. Проверь `.plan/PROJECT.md` — если не существует, пропусти
+2. Извлеки: Mission, Vision, Strategic Goals, Roadmap phases, Constraints
+3. Используй для:
+   - Проверки alignment нового плана со стратегическими целями
+   - Предложения Roadmap phase для нового плана
+   - Проверки constraints при формулировке задач
 
 ### Процедура: Execution Context (для next)
 

@@ -3,7 +3,7 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { join, resolve } from "node:path";
-import { parsePlans, parseTaskFile } from "./parser.js";
+import { parsePlans, parseProjectVision, parseTaskFile } from "./parser.js";
 import { getProjectCwd, parseSessions } from "./sessions-parser.js";
 
 const app = new Hono();
@@ -15,7 +15,8 @@ app.use("/api/*", cors());
 
 app.get("/api/plans", async (c) => {
   const plans = await parsePlans(planDir);
-  return c.json({ plans });
+  const project = await parseProjectVision(planDir);
+  return c.json({ plans, project: project ?? undefined });
 });
 
 app.get("/api/plans/:name", async (c) => {
@@ -49,11 +50,15 @@ app.get("/api/projects/:dirName/plans", async (c) => {
     await parseSessions(claudeDir);
     const cwdRetry = getProjectCwd(dirName);
     if (!cwdRetry) return c.json({ error: "Project not found" }, 404);
-    const plans = await parsePlans(join(cwdRetry, ".plan"));
-    return c.json({ plans });
+    const projectPlanDir = join(cwdRetry, ".plan");
+    const plans = await parsePlans(projectPlanDir);
+    const project = await parseProjectVision(projectPlanDir);
+    return c.json({ plans, project: project ?? undefined });
   }
-  const plans = await parsePlans(join(cwd, ".plan"));
-  return c.json({ plans });
+  const projectPlanDir = join(cwd, ".plan");
+  const plans = await parsePlans(projectPlanDir);
+  const project = await parseProjectVision(projectPlanDir);
+  return c.json({ plans, project: project ?? undefined });
 });
 
 app.get("/api/projects/:dirName/plans/:name/parts/:partNumber/tasks/:taskNumber", async (c) => {

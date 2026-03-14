@@ -11,6 +11,7 @@
 
 ## Features
 
+- **Project Vision & Roadmap** — define project mission, strategic goals, and roadmap phases across plans
 - **Multi-plan support** — manage multiple plans simultaneously with a shared index
 - **Dependency tracking** — automatic blocked/ready status based on part dependencies
 - **Cascade unblocking** — completing a part automatically unblocks dependents
@@ -45,6 +46,7 @@ claude plugin install claude-plan
 | `/claude-plan:research` | Create a research note or ADR in the plan |
 | `/claude-plan:done` | Mark part as done, cascade unblock dependent parts, write to CHANGELOG |
 | `/claude-plan:list` | Show all plans with progress |
+| `/claude-plan:project` | Define or update project vision, strategic goals, and roadmap |
 | `/claude-plan:setup` | Add AI instructions to the project's CLAUDE.md |
 | `/claude-plan:web` | Launch Kanban web dashboard for plan visualization |
 
@@ -82,6 +84,7 @@ Additional features:
 
 ```
 .plan/
+├── PROJECT.md                   # Project vision & roadmap (optional)
 ├── INDEX.md                     # Index of all plans
 ├── research/                    # Shared research notes
 ├── <plan-name>/

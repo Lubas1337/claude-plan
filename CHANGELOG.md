@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.7.0 — 2026-03-14
+
+### Project Vision & Roadmap
+
+- `/claude-plan:project` — новая команда для определения проектного контекста (миссия, vision, стратегические цели, roadmap)
+- `.plan/PROJECT.md` — опциональный файл, объединяющий все планы в единую стратегию
+- Интерактивное создание в 3 раунда (Mission/Vision → Goals → Roadmap/Constraints)
+- Режим обновления: точечные правки или синхронизация Roadmap из INDEX.md
+- **Alignment check в init** — проверка соответствия нового плана стратегическим целям и constraints
+- **Roadmap update в done** — автообновление статусов фаз при завершении планов
+- **Roadmap в list** — показ проектного контекста и фаз перед таблицей планов
+- **Project context в status** — строка с проектом и стратегической целью
+- **Web Dashboard** — Project Overview с roadmap timeline, кликабельными бейджами планов и стратегическими целями
+- Процедура "Project Vision Context" в SKILL.md для alignment при создании планов
+- Полная обратная совместимость: проекты без PROJECT.md работают как раньше
+
 ## v1.6.0 — 2026-03-13
 
 ### 3-уровневый Kanban: Dashboard, Plan Detail, Task Modal

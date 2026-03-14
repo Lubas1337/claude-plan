@@ -26,6 +26,12 @@ description: "Показать статус плана — обновить INDE
 
 ### Вывод в консоль
 
+Если `.plan/PROJECT.md` существует, перед блоком плана добавь:
+```
+Project: <name> | Goal: <strategic goal для этого плана>
+```
+Определи strategic goal по Roadmap таблице (найди план → фазу → goal).
+
 ```markdown
 # Plan: <name>
 Vision: ...

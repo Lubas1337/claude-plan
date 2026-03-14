@@ -5,10 +5,11 @@ import { Dashboard } from "./components/Dashboard";
 import { Header } from "./components/Header";
 import { Sidebar } from "./components/Sidebar";
 import { TaskModal } from "./components/TaskModal";
-import type { Plan, TaskModalState, View } from "./types";
+import type { Plan, ProjectVision, TaskModalState, View } from "./types";
 
 export function App() {
   const [plans, setPlans] = useState<Plan[]>([]);
+  const [project, setProject] = useState<ProjectVision | undefined>(undefined);
   const [view, setView] = useState<View>({ level: "dashboard" });
   const [taskModal, setTaskModal] = useState<TaskModalState | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -30,7 +31,10 @@ export function App() {
       ? fetchProjectPlans(activeProject)
       : fetchPlans();
     load
-      .then((data) => setPlans(data.plans))
+      .then((data) => {
+        setPlans(data.plans);
+        setProject(data.project);
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [activeProject]);
@@ -84,6 +88,7 @@ export function App() {
         ) : view.level === "dashboard" ? (
           <Dashboard
             plans={plans}
+            project={project}
             onPlanSelect={(name) => setView({ level: "plan", planName: name })}
           />
         ) : currentPlan ? (

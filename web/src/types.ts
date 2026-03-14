@@ -38,8 +38,27 @@ export interface Plan {
   parts: Part[];
 }
 
+export interface RoadmapPhase {
+  number: number;
+  name: string;
+  plans: string[];
+  goal: string;
+  status: "planned" | "active" | "done";
+}
+
+export interface ProjectVision {
+  name: string;
+  mission: string;
+  vision: string;
+  strategicGoals: string[];
+  roadmap: RoadmapPhase[];
+  constraints: string[];
+  keyDecisions: string[];
+}
+
 export interface PlansResponse {
   plans: Plan[];
+  project?: ProjectVision;
 }
 
 // Navigation (state-based, no router)

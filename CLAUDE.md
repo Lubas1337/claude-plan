@@ -32,10 +32,11 @@
 ### Восстановление контекста между сессиями
 
 При начале новой сессии, если в проекте есть `.plan/`:
-1. Прочитай `.plan/INDEX.md` — какие планы активны
-2. Для active плана — прочитай `STATUS.md` и `MASTER.md`
-3. Найди `in_progress` части — предложи продолжить
-4. Если нет `in_progress` — предложи `/claude-plan:next`
+1. Прочитай `.plan/PROJECT.md` (если есть) — проектный контекст и roadmap
+2. Прочитай `.plan/INDEX.md` — какие планы активны
+3. Для active плана — прочитай `STATUS.md` и `MASTER.md`
+4. Найди `in_progress` части — предложи продолжить
+5. Если нет `in_progress` — предложи `/claude-plan:next`
 
 ### Decision tree
 
@@ -43,6 +44,7 @@
 Пользователь описывает задачу:
 ├── 1-2 файла → прямое редактирование
 ├── 3-10 частей → /claude-plan:init
+├── Хочет определить стратегию → /claude-plan:project
 └── 10+ фаз, research-heavy → GSD workflow
 
 Пользователь возвращается к проекту:
@@ -62,4 +64,5 @@
 | `/claude-plan:list` | Все планы |
 | `/claude-plan:add-part` | Добавить часть |
 | `/claude-plan:research` | Research note / ADR |
+| `/claude-plan:project` | Проектный контекст, vision, roadmap |
 | `/claude-plan:setup` | Эта секция (инструкции в CLAUDE.md) |

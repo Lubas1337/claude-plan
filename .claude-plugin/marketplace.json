@@ -38,7 +38,8 @@
         "./commands/list.md",
         "./commands/setup.md",
         "./commands/delegate.md",
-        "./commands/web.md"
+        "./commands/web.md",
+        "./commands/project.md"
       ],
       "skills": [
         "./skills/plan"

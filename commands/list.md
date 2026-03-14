@@ -32,6 +32,23 @@ description: "Показать все планы с прогрессом"
 Total: 3 plans, 7/14 parts done (50%)
 ```
 
+4.5 **Roadmap (если есть PROJECT.md)**:
+
+Проверь `.plan/PROJECT.md`. Если существует, добавь перед таблицей планов:
+
+```
+## Project: <name>
+Mission: <mission>
+
+### Roadmap
+| Phase | Plans | Status |
+|-------|-------|--------|
+| 1. Foundation | auth-system (done) | done |
+| 2. Core | ai-features (3/7), search (1/4) | active |
+```
+
+Статусы фаз обнови по текущим статусам планов из INDEX.md.
+
 5. **Обнови INDEX.md** с актуальными данными.
 
 ### Детальный режим

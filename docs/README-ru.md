@@ -12,7 +12,7 @@ claude plugin marketplace add Lubas1337/claude-plan
 claude plugin install claude-plan
 ```
 
-## Команды (9)
+## Команды (10)
 
 | Команда | Описание |
 |---------|----------|
@@ -23,6 +23,7 @@ claude plugin install claude-plan
 | `/claude-plan:research` | Создать research note или ADR в плане |
 | `/claude-plan:done` | Пометить часть как done, каскадно обновить blocked->ready, записать в CHANGELOG |
 | `/claude-plan:list` | Показать все планы с прогрессом |
+| `/claude-plan:project` | Определить или обновить проектный контекст — миссия, vision, цели, roadmap |
 | `/claude-plan:setup` | Добавить инструкции для AI в CLAUDE.md проекта |
 | `/claude-plan:web` | Запустить Kanban веб-доску для визуализации планов |
 
@@ -48,6 +49,7 @@ claude plugin install claude-plan
 
 ```
 .plan/
+├── PROJECT.md                   # Проектный контекст и roadmap (опционально)
 ├── INDEX.md                     # Индекс всех планов
 ├── research/                    # Общие исследования
 ├── <plan-name>/
@@ -65,6 +67,7 @@ claude plugin install claude-plan
 
 ## Возможности
 
+- **Project Vision & Roadmap** — миссия, стратегические цели и roadmap-фазы объединяющие планы
 - **Мульти-планы** — несколько планов одновременно с общим INDEX.md
 - **Dependency tracking** — зависимости между частями, автоматический blocked/ready
 - **Cascade unblocking** — завершение части автоматически разблокирует зависимые
