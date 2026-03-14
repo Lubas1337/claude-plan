@@ -5,14 +5,14 @@
   },
   "metadata": {
     "description": "Lightweight project planning system for Claude Code",
-    "version": "1.0.0"
+    "version": "1.7.0"
   },
   "plugins": [
     {
       "name": "claude-plan",
       "source": "./",
       "description": "Lightweight project planning system with multi-plan support, dependency tracking, cascade unblocking, parallelism, research notes, and ADR",
-      "version": "1.0.0",
+      "version": "1.7.0",
       "author": {
         "name": "Abylay"
       },
