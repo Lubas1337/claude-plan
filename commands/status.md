@@ -10,6 +10,17 @@ description: "Показать статус плана — обновить INDE
 
 Показывает текущий статус плана и обновляет STATUS.md. Skill "plan" содержит форматы файлов и конвенции. Используй его как справку.
 
+### Step 0: Detect Backend
+
+Выполни процедуру **"Detect Backend"** из SKILL.md:
+1. Проверь `.plan/config.json` → определи `mode` (local/obsidian) и `vaultPath`
+2. Если `mode === "local"` → текущее поведение без изменений
+3. Если `mode === "obsidian"`:
+   - MASTER.md → `<vault>/Plans/<Plan Name>/<Plan Name>.md` (парси YAML frontmatter)
+   - META.md → `<vault>/Plans/<Plan Name>/Parts/NN - Name/NN - Name.md` (парси frontmatter)
+   - STATUS.md → `<vault>/Plans/<Plan Name>/Status.md` (Dataview-based, обнови `updated:` в frontmatter)
+   - INDEX.md → `<vault>/Plans/Plans MOC.md` (Dataview, не требует ручного обновления)
+
 ### Входные данные
 
 Аргумент: `$ARGUMENTS` — название плана (slug). Если не указано — прочитай INDEX.md и спроси через `AskUserQuestion` с опциями — по одной на каждый план из INDEX.md.

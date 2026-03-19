@@ -10,6 +10,16 @@ description: "Добавить новую часть в существующий
 
 Добавляет новую часть в существующий план. Skill "plan" содержит форматы файлов и конвенции. Используй его как справку.
 
+### Step 0: Detect Backend
+
+Выполни процедуру **"Detect Backend"** из SKILL.md:
+1. Проверь `.plan/config.json` → определи `mode` (local/obsidian) и `vaultPath`
+2. Если `mode === "local"` → текущее поведение без изменений
+3. Если `mode === "obsidian"`:
+   - MASTER.md → `<vault>/Plans/<Plan Name>/<Plan Name>.md`
+   - Создай Part note: `<vault>/Plans/<Plan Name>/Parts/NN - Name/NN - Name.md` с YAML frontmatter
+   - В таблице Parts Plan Overview используй wikilinks: `[[NN - Name]]`
+
 ### Входные данные
 
 Аргумент: `$ARGUMENTS` — название плана и описание части.

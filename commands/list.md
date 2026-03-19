@@ -8,6 +8,16 @@ description: "Показать все планы с прогрессом"
 
 Показывает все планы в `.plan/` с их прогрессом. Skill "plan" содержит форматы файлов и конвенции. Используй его как справку.
 
+### Step 0: Detect Backend
+
+Выполни процедуру **"Detect Backend"** из SKILL.md:
+1. Проверь `.plan/config.json` → определи `mode` (local/obsidian) и `vaultPath`
+2. Если `mode === "local"` → текущее поведение без изменений
+3. Если `mode === "obsidian"`:
+   - Сканируй `<vault>/Plans/` → директории с файлом `<Name>.md` содержащим `type: plan` в frontmatter
+   - PROJECT.md → `<vault>/Project.md`
+   - INDEX.md → Plans MOC.md (Dataview, не требует обновления)
+
 ### Алгоритм
 
 1. **Проверь существование** `.plan/` директории. Если нет — сообщи и предложи `/claude-plan:init`.

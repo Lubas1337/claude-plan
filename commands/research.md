@@ -10,6 +10,17 @@ description: "Создать research note или ADR в плане"
 
 Создаёт research note или ADR (Architecture Decision Record) в плане. Skill "plan" содержит форматы файлов и конвенции. Используй его как справку.
 
+### Step 0: Detect Backend
+
+Выполни процедуру **"Detect Backend"** из SKILL.md:
+1. Проверь `.plan/config.json` → определи `mode` (local/obsidian) и `vaultPath`
+2. Если `mode === "local"` → текущее поведение без изменений
+3. Если `mode === "obsidian"`:
+   - Research: `<vault>/Plans/<Plan Name>/Research/NNN - Topic.md` с frontmatter `type: research`
+   - ADR: `<vault>/Plans/<Plan Name>/Research/ADR/ADR-NNN - Decision.md` с frontmatter `type: adr`
+   - Общий research: `<vault>/Research/NNN - Topic.md`
+   - Используй wikilinks: `plan: "[[Plan Name]]"`
+
 ### Входные данные
 
 Аргумент: `$ARGUMENTS` — тема и опции.

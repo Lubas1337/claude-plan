@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.8.0 — 2026-03-19
+
+### Obsidian Backend
+
+- `/claude-plan:obsidian` — новая команда (setup, toggle, migrate, status)
+- Два режима через `.plan/config.json`: `backend: "local"` (default) или `"obsidian"`
+- **YAML frontmatter** как source of truth для метаданных в Obsidian mode
+- **Wikilinks** для связей между планами, частями и задачами
+- **Dataview дашборды** — Dashboard.md, Status.md, Plans MOC, ADR MOC
+- **Шаблоны** — _templates/ для Plan, Part, Task, Research, ADR
+- **Canvas** — Architecture.canvas шаблон для диаграмм
+- **Миграция** — однонаправленная `.plan/` → Obsidian vault (`--dry-run` для предпросмотра)
+- **Step 0: Detect Backend** — все команды автоматически определяют режим работы
+- **Web Parser** — поддержка Obsidian vault в Kanban dashboard API
+- Обратная совместимость: без config.json всё работает как раньше
+
 ## v1.7.0 — 2026-03-14
 
 ### Project Vision & Roadmap

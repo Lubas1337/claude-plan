@@ -558,6 +558,345 @@ Reason: {почему}
 </output_format>
 ```
 
+## Obsidian Backend
+
+Альтернативный бэкенд, хранящий планы в Obsidian vault с YAML frontmatter, wikilinks и Dataview-дашбордами.
+
+### Конфигурация
+
+Файл `.plan/config.json` (всегда в `.plan/`, даже в Obsidian-режиме):
+
+```json
+{
+  "backend": "obsidian",
+  "obsidian": {
+    "vault_path": "/path/to/vault",
+    "rest_api": {
+      "enabled": false,
+      "port": 27124,
+      "api_key": ""
+    }
+  }
+}
+```
+
+По умолчанию (без файла): `backend: "local"`.
+
+### Процедура: Detect Backend
+
+Выполняется как **Step 0** каждой команды. Определяет режим работы.
+
+1. Проверь `.plan/config.json`:
+   - Если файл существует и `backend === "obsidian"` → Obsidian mode
+   - Иначе → Local mode (текущее поведение, **ничего не меняется**)
+
+2. Если Obsidian mode:
+   - Прочитай `obsidian.vault_path` из config.json
+   - Проверь что путь существует (`ls <vault_path>`)
+   - Если не существует → предупреди: "Vault path не найден. Используй /claude-plan:obsidian setup", fallback на Local mode
+
+3. Верни:
+   - `mode: "local" | "obsidian"`
+   - `vaultPath: string` (только для obsidian)
+
+4. **Ветвление**: после Step 0 каждая команда использует `mode` для выбора путей и форматов.
+   - **Local mode** → текущее поведение без изменений
+   - **Obsidian mode** → Obsidian-специфичные пути и форматы (описаны ниже)
+
+### Obsidian Path Resolution
+
+| Local (.plan/) | Obsidian (<vault>/) |
+|----------------|---------------------|
+| `INDEX.md` | `Plans/Plans MOC.md` (Dataview) |
+| `PROJECT.md` | `Project.md` (корень vault) |
+| `<plan>/MASTER.md` | `Plans/<Plan Name>/<Plan Name>.md` |
+| `<plan>/STATUS.md` | `Plans/<Plan Name>/Status.md` (Dataview) |
+| `<plan>/CHANGELOG.md` | `Plans/<Plan Name>/Changelog.md` |
+| `<plan>/GUIDE.md` | `Plans/<Plan Name>/Guide.md` |
+| `<plan>/parts/NN-slug/META.md` | `Plans/<Plan Name>/Parts/NN - Name/NN - Name.md` |
+| `<plan>/parts/NN-slug/NN-task.md` | `Plans/<Plan Name>/Parts/NN - Name/NN - Task.md` |
+| `<plan>/research/NNN-topic.md` | `Plans/<Plan Name>/Research/NNN - Topic.md` |
+| `<plan>/research/adr/NNN-decision.md` | `Plans/<Plan Name>/Research/ADR/ADR-NNN - Decision.md` |
+
+Slug → Name конвертация: `01-foundation` → `01 - Foundation`, `api-layer` → `API Layer` (capitalize each word).
+
+### Obsidian File Formats
+
+В Obsidian mode все файлы используют YAML frontmatter вместо markdown-полей. Wikilinks вместо relative markdown links.
+
+#### Plan Overview (`<Plan Name>.md`)
+
+```markdown
+---
+type: plan
+status: active
+created: 2026-03-19
+updated: 2026-03-19
+progress: "3/7"
+version: "v0.3.0"
+tags:
+  - plan/active
+aliases:
+  - plan-slug
+---
+# <Plan Name>
+
+## Vision
+...
+
+## Goals
+1. ...
+
+## Parts
+| # | Part | Status | Depends | Parallel | Size | Agent |
+|---|------|--------|---------|----------|------|-------|
+| 01 | [[01 - Foundation]] | done | - | - | S | none |
+| 02 | [[02 - Domain]] | in_progress | 01 | - | M | auto |
+
+## Constraints
+## Out of Scope
+```
+
+#### Part Note (`NN - Part Name.md`)
+
+```markdown
+---
+type: part
+plan: "[[Plan Name]]"
+part_number: "01"
+status: ready
+dependencies: []
+parallel: "-"
+delegatable: true
+agent: auto
+size: M
+branch: "feat/foundation"
+created: 2026-03-19
+updated: 2026-03-19
+tags:
+  - part/ready
+  - size/M
+---
+# Part 01: Foundation
+
+## Goal
+...
+
+## Files Affected
+- internal/...
+
+## Tasks
+| # | Task | Status |
+|---|------|--------|
+| 01 | [[01 - Create Base]] | ready |
+
+## Notes
+```
+
+#### Task Note (`NN - Task Name.md`)
+
+```markdown
+---
+type: task
+plan: "[[Plan Name]]"
+part: "[[01 - Foundation]]"
+task_number: "01"
+status: ready
+created: 2026-03-19
+updated: 2026-03-19
+tags:
+  - task/ready
+---
+# Task 01: Create Base
+
+## Action
+...
+
+## Acceptance Criteria
+- [ ] ...
+
+## Verification
+...
+
+## Files Affected
+- path/to/file.go
+
+## Result
+(заполняется после выполнения)
+```
+
+#### Project.md (корень vault)
+
+```markdown
+---
+type: project
+created: 2026-03-19
+updated: 2026-03-19
+tags:
+  - project
+---
+# Project: <Name>
+
+## Mission
+## Vision
+## Strategic Goals
+## Roadmap
+| Phase | Plans | Goal | Status |
+|-------|-------|------|--------|
+| 1 | [[Plan Name]] | ... | active |
+
+## Constraints
+## Key Decisions
+- 2026-03-19: Decision ([[ADR-001 - Title]])
+```
+
+#### Dashboard.md (Dataview)
+
+```markdown
+---
+type: moc
+tags: [moc]
+---
+# Dashboard
+
+## Active Plans
+\```dataview
+TABLE status, progress, version, updated
+FROM "Plans" WHERE type = "plan" AND status = "active"
+SORT updated DESC
+\```
+
+## In Progress
+\```dataview
+TABLE plan AS "Plan", size, dependencies
+FROM "" WHERE type = "part" AND status = "in_progress"
+\```
+
+## Ready (Next Up)
+\```dataview
+TABLE plan AS "Plan", size
+FROM "" WHERE type = "part" AND status = "ready"
+SORT part_number ASC
+\```
+
+## Recent Completions
+\```dataview
+TABLE part AS "Part", status, updated
+FROM "" WHERE type = "task" AND status = "done"
+SORT updated DESC LIMIT 10
+\```
+```
+
+#### Plans MOC (`Plans/Plans MOC.md`)
+
+```markdown
+---
+type: moc
+tags: [moc, plans]
+---
+# Plans
+
+\```dataview
+TABLE status, progress, version, updated
+FROM "Plans" WHERE type = "plan"
+SORT updated DESC
+\```
+```
+
+#### ADR Note
+
+```markdown
+---
+type: adr
+status: accepted
+plan: "[[Plan Name]]"
+created: 2026-03-19
+tags: [adr/accepted]
+---
+# ADR-001: Title
+## Context
+## Decision
+## Consequences
+## Alternatives
+```
+
+#### Research Note
+
+```markdown
+---
+type: research
+plan: "[[Plan Name]]"
+created: 2026-03-19
+tags: [research]
+---
+# Research: Topic
+## Вопрос
+## Находки
+## Решение
+## Ссылки
+```
+
+#### Status.md (Dataview)
+
+```markdown
+---
+type: status
+plan: "[[Plan Name]]"
+tags: [status]
+---
+# Status: <Plan Name>
+
+## Progress
+\```dataview
+TABLE status, size, dependencies
+FROM "Plans/<Plan Name>/Parts" WHERE type = "part"
+SORT part_number ASC
+\```
+
+## By Status
+\```dataview
+TABLE length(rows) AS "Count"
+FROM "Plans/<Plan Name>/Parts" WHERE type = "part"
+GROUP BY status
+\```
+```
+
+### Obsidian Frontmatter Operations
+
+При обновлении статуса в Obsidian mode:
+
+1. **Чтение статуса**: парси YAML frontmatter → поле `status:`
+2. **Запись статуса**: обнови поле `status:` в frontmatter + обнови `updated:` на текущую дату + обнови `tags:` (замени `part/ready` на `part/in_progress`)
+3. **Каскад**: то же что в local mode, но обновляй frontmatter вместо `- **Status**: ready`
+
+### Obsidian Vault Scaffolding
+
+При `/claude-plan:obsidian setup` создаётся структура vault:
+
+```
+<vault_path>/
+├── _templates/
+│   ├── Plan Template.md
+│   ├── Part Template.md
+│   ├── Task Template.md
+│   ├── Research Template.md
+│   └── ADR Template.md
+├── Dashboard.md
+├── Plans/
+│   └── Plans MOC.md
+└── Architecture/
+    ├── Architecture.canvas
+    └── ADR MOC.md
+```
+
+### Obsidian Wikilink Conventions
+
+- Ссылки на планы: `[[Plan Name]]`
+- Ссылки на части: `[[01 - Foundation]]`
+- Ссылки на задачи: `[[01 - Create Base]]`
+- Ссылки на ADR: `[[ADR-001 - Decision]]`
+- В frontmatter: обёрнуты в кавычки `plan: "[[Plan Name]]"`
+
 ### Процедура: Launch Agent
 
 1. Построй prompt процедурой "Build Agent Prompt"

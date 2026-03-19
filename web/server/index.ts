@@ -3,7 +3,7 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { join, resolve } from "node:path";
-import { parsePlans, parseProjectVision, parseTaskFile } from "./parser.js";
+import { parsePlans, parseProjectVision, parseTaskFile, parseObsidianPlans, parseObsidianProjectVision } from "./parser.js";
 import { getProjectCwd, parseSessions } from "./sessions-parser.js";
 
 const app = new Hono();
@@ -11,12 +11,40 @@ const app = new Hono();
 const planDir = process.env.PLAN_DIR || resolve(process.cwd(), ".plan");
 const claudeDir = process.env.CLAUDE_DIR || resolve(process.env.HOME || "~", ".claude");
 
+// Detect backend from config
+import { readFile as readFileAsync } from "node:fs/promises";
+const backendMode = process.env.PLAN_BACKEND || "auto";
+const vaultPathEnv = process.env.VAULT_PATH || "";
+
+async function detectBackend(): Promise<{ mode: "local" | "obsidian"; vaultPath: string }> {
+  if (backendMode === "obsidian" && vaultPathEnv) {
+    return { mode: "obsidian", vaultPath: vaultPathEnv };
+  }
+  try {
+    const configPath = join(planDir, "config.json");
+    const configContent = await readFileAsync(configPath, "utf-8");
+    const config = JSON.parse(configContent);
+    if (config.backend === "obsidian" && config.obsidian?.vault_path) {
+      return { mode: "obsidian", vaultPath: config.obsidian.vault_path };
+    }
+  } catch {
+    // No config or invalid — use local
+  }
+  return { mode: "local", vaultPath: "" };
+}
+
 app.use("/api/*", cors());
 
 app.get("/api/plans", async (c) => {
+  const backend = await detectBackend();
+  if (backend.mode === "obsidian") {
+    const plans = await parseObsidianPlans(backend.vaultPath);
+    const project = await parseObsidianProjectVision(backend.vaultPath);
+    return c.json({ plans, project: project ?? undefined, backend: "obsidian" });
+  }
   const plans = await parsePlans(planDir);
   const project = await parseProjectVision(planDir);
-  return c.json({ plans, project: project ?? undefined });
+  return c.json({ plans, project: project ?? undefined, backend: "local" });
 });
 
 app.get("/api/plans/:name", async (c) => {

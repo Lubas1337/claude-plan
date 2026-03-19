@@ -10,6 +10,19 @@ description: "Пометить часть как done, каскадно обно
 
 Помечает часть как `done`, каскадно разблокирует зависимые части, пишет CHANGELOG. Skill "plan" содержит форматы и каскадную логику. Используй его как справку.
 
+### Step 0: Detect Backend
+
+Выполни процедуру **"Detect Backend"** из SKILL.md:
+1. Проверь `.plan/config.json` → определи `mode` (local/obsidian) и `vaultPath`
+2. Если `mode === "local"` → текущее поведение без изменений
+3. Если `mode === "obsidian"` → используй Obsidian path resolution и frontmatter operations из SKILL.md
+
+**Obsidian mode status update:**
+- Обновляй YAML frontmatter `status:` вместо `- **Status**: done`
+- Обновляй `updated:` на текущую дату
+- Обновляй `tags:` (замени `part/in_progress` → `part/done`)
+- В Plan Overview обнови wikilink-таблицу
+
 ### Входные данные
 
 Аргумент: `$ARGUMENTS` — план и номер части.
@@ -46,6 +59,7 @@ description: "Пометить часть как done, каскадно обно
 2. Если ВСЕ зависимости `done` (или `skipped`) → смени на `ready`
 3. Обнови META.md разблокированной части
 4. Обнови MASTER.md
+   > **Obsidian mode**: обнови frontmatter каждой разблокированной Part note: `status: ready`, `updated:`, `tags: [part/ready, ...]`
 
 #### 3.5 Предложение запуска агентов
 
@@ -112,6 +126,7 @@ description: "Пометить часть как done, каскадно обно
    - Проверь наличие `research/adr/` — если есть, прочитай ADR файлы
 
 2. **Создай `.plan/<plan-name>/GUIDE.md`** по формату из SKILL.md
+   > **Obsidian mode**: создай `Plans/<Plan Name>/Guide.md` с frontmatter `type: guide, plan: "[[Plan Name]]"`, tags `[guide]`
 
 3. **Обнови INDEX.md**: добавь ссылку `[GUIDE](plan-name/GUIDE.md)` в колонку Guide
 

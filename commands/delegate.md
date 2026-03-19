@@ -8,6 +8,16 @@ description: "Делегировать часть плана агенту Claude
 
 Явная делегация части плана агенту. Skill "plan" содержит процедуры оркестрации.
 
+### Step 0: Detect Backend
+
+Выполни процедуру **"Detect Backend"** из SKILL.md:
+1. Проверь `.plan/config.json` → определи `mode` (local/obsidian) и `vaultPath`
+2. Если `mode === "local"` → текущее поведение без изменений
+3. Если `mode === "obsidian"`:
+   - META.md → `<vault>/Plans/<Plan Name>/Parts/NN - Name/NN - Name.md`
+   - Task files → `<vault>/Plans/<Plan Name>/Parts/NN - Name/NN - Task.md`
+   - При построении Agent Prompt передай правильные Obsidian пути в `<files_to_read>`
+
 ### Входные данные
 
 Аргумент: `$ARGUMENTS`

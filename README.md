@@ -21,6 +21,7 @@
 - **Parallel execution** — run independent parts via git worktrees
 - **Research & ADR** — research notes and Architecture Decision Records per plan
 - **Session sidebar** — browse Claude Code sessions grouped by project
+- **Obsidian integration** — optional Obsidian vault backend with YAML frontmatter, wikilinks, and Dataview dashboards
 
 ## Quick Start
 
@@ -48,6 +49,7 @@ claude plugin install claude-plan
 | `/claude-plan:list` | Show all plans with progress |
 | `/claude-plan:project` | Define or update project vision, strategic goals, and roadmap |
 | `/claude-plan:setup` | Add AI instructions to the project's CLAUDE.md |
+| `/claude-plan:obsidian` | Configure Obsidian vault backend, toggle modes, migrate data |
 | `/claude-plan:web` | Launch Kanban web dashboard for plan visualization |
 
 ## When to Use
@@ -99,6 +101,33 @@ Additional features:
 │           ├── 01-task.md       # Individual task files
 │           └── 02-task.md
 ```
+
+## Obsidian Integration
+
+Use Obsidian as an alternative backend for rich visualization:
+
+```bash
+# Setup vault and switch to Obsidian mode
+/claude-plan:obsidian setup
+
+# Create plans — automatically uses Obsidian format
+/claude-plan:init my-project
+
+# Migrate existing .plan/ data to Obsidian
+/claude-plan:obsidian migrate
+
+# Switch back to local mode
+/claude-plan:obsidian toggle
+```
+
+Obsidian features:
+- **YAML frontmatter** as source of truth for metadata
+- **Wikilinks** for plan/part/task connections (graph view)
+- **Dataview dashboards** for automatic status aggregation
+- **Templates** for consistent note creation
+- **Canvas** for architecture diagrams
+
+Requires [Dataview plugin](https://github.com/blacksmithgu/obsidian-dataview) for dashboards.
 
 ## Contributing
 

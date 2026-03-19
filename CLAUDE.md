@@ -44,6 +44,7 @@
 Пользователь описывает задачу:
 ├── 1-2 файла → прямое редактирование
 ├── 3-10 частей → /claude-plan:init
+├── Хочет Obsidian vault → /claude-plan:obsidian
 ├── Хочет определить стратегию → /claude-plan:project
 └── 10+ фаз, research-heavy → GSD workflow
 
@@ -65,4 +66,5 @@
 | `/claude-plan:add-part` | Добавить часть |
 | `/claude-plan:research` | Research note / ADR |
 | `/claude-plan:project` | Проектный контекст, vision, roadmap |
+| `/claude-plan:obsidian` | Настройка Obsidian vault, toggle backend |
 | `/claude-plan:setup` | Эта секция (инструкции в CLAUDE.md) |

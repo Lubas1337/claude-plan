@@ -10,6 +10,16 @@ description: "Определить или обновить проектный к
 
 Создаёт или обновляет `.plan/PROJECT.md` — проектный контекст, объединяющий все планы.
 
+### Step -1: Detect Backend
+
+Выполни процедуру **"Detect Backend"** из SKILL.md:
+1. Проверь `.plan/config.json` → определи `mode` (local/obsidian) и `vaultPath`
+2. Если `mode === "local"` → текущее поведение, PROJECT.md в `.plan/PROJECT.md`
+3. Если `mode === "obsidian"`:
+   - PROJECT.md → `<vault>/Project.md` (корень vault)
+   - Формат: YAML frontmatter с `type: project`, wikilinks в Roadmap таблице
+   - В Roadmap используй `[[Plan Name]]` вместо `[plan-name](plan-name/MASTER.md)`
+
 ### Шаг 0: Определи режим
 
 Проверь существование `.plan/PROJECT.md`:

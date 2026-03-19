@@ -74,6 +74,66 @@ function getFieldValue(content: string, field: string): string {
   return match?.[1]?.trim() ?? "";
 }
 
+// --- YAML frontmatter parser ---
+
+interface FrontmatterData {
+  [key: string]: unknown;
+}
+
+function parseYamlFrontmatter(content: string): { frontmatter: FrontmatterData; body: string } {
+  const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  if (!match) return { frontmatter: {}, body: content };
+
+  const yamlBlock = match[1];
+  const body = match[2];
+  const frontmatter: FrontmatterData = {};
+
+  let currentKey = "";
+  let inArray = false;
+  const arrayValues: string[] = [];
+
+  for (const line of yamlBlock.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+
+    if (inArray) {
+      if (trimmed.startsWith("- ")) {
+        arrayValues.push(trimmed.slice(2).trim().replace(/^["']|["']$/g, ""));
+        continue;
+      } else {
+        frontmatter[currentKey] = [...arrayValues];
+        arrayValues.length = 0;
+        inArray = false;
+      }
+    }
+
+    const kvMatch = trimmed.match(/^([a-z_]+)\s*:\s*(.*)$/);
+    if (kvMatch) {
+      currentKey = kvMatch[1];
+      const value = kvMatch[2].trim();
+      if (value === "" || value === undefined) {
+        // Could be start of array or empty value
+        inArray = true;
+        arrayValues.length = 0;
+      } else if (value === "[]") {
+        frontmatter[currentKey] = [];
+      } else if (value === "true") {
+        frontmatter[currentKey] = true;
+      } else if (value === "false") {
+        frontmatter[currentKey] = false;
+      } else {
+        frontmatter[currentKey] = value.replace(/^["']|["']$/g, "");
+      }
+    }
+  }
+
+  if (inArray && currentKey) {
+    frontmatter[currentKey] = [...arrayValues];
+  }
+
+  return { frontmatter, body };
+}
+
 // --- INDEX.md parser ---
 
 interface IndexEntry {
@@ -344,6 +404,171 @@ export async function parseTaskFile(
     result: notesText || goalText,
     filesAffected,
   };
+}
+
+// --- Obsidian vault parser ---
+
+async function parseObsidianPartNote(filePath: string): Promise<{ meta: MetaData; taskFiles: string[] } | null> {
+  if (!(await exists(filePath))) return null;
+  const content = await readFile(filePath, "utf-8");
+  const { frontmatter, body } = parseYamlFrontmatter(content);
+
+  if (frontmatter.type !== "part") return null;
+
+  const status = (frontmatter.status as string || "draft") as PartStatus;
+  const deps = Array.isArray(frontmatter.dependencies) ? frontmatter.dependencies as string[] : [];
+  const parallel = (frontmatter.parallel as string) || "-";
+  const size = (frontmatter.size as string || "M") as PartSize;
+  const agent = (frontmatter.agent as string) || "";
+
+  const goalSection = getSection(body, "Goal");
+  const goal = goalSection.split("\n")[0] ?? "";
+
+  const tasksRows = parseMarkdownTable(body, /Task/i);
+  const tasks: TaskSummary[] = tasksRows.map((row) => {
+    const nameRaw = row["task"] ?? "";
+    const wikiMatch = nameRaw.match(/\[\[([^\]]+)\]\]/);
+    return {
+      number: row["#"] ?? "",
+      name: wikiMatch ? wikiMatch[1] : nameRaw,
+      status: row["status"] ?? "ready",
+    };
+  });
+
+  return { meta: { status, depends: deps, parallel, size, agent, goal, tasks }, taskFiles: [] };
+}
+
+async function parseObsidianTaskFile(filePath: string): Promise<TaskDetail | null> {
+  if (!(await exists(filePath))) return null;
+  const content = await readFile(filePath, "utf-8");
+  const { frontmatter, body } = parseYamlFrontmatter(content);
+
+  if (frontmatter.type !== "task") return null;
+
+  const taskNumber = (frontmatter.task_number as string) || "";
+  const status = (frontmatter.status as string) || "ready";
+
+  const titleMatch = body.match(/^#\s+Task\s+\d+:\s*(.+)$/m);
+  const name = titleMatch?.[1]?.trim() ?? "";
+
+  const action = getSection(body, "Action");
+  const resultText = getSection(body, "Result");
+
+  const acSection = getSection(body, "Acceptance Criteria");
+  const acceptanceCriteria = acSection
+    .split("\n")
+    .filter((l) => l.trim().startsWith("- "))
+    .map((l) => l.replace(/^-\s*/, "").trim());
+
+  const faSection = getSection(body, "Files Affected");
+  const filesAffected = faSection
+    .split("\n")
+    .filter((l) => l.trim().startsWith("- "))
+    .map((l) => l.replace(/^-\s*/, "").trim());
+
+  return { number: taskNumber, name, status, action, acceptanceCriteria, result: resultText, filesAffected };
+}
+
+export async function parseObsidianPlans(vaultPath: string): Promise<Plan[]> {
+  const plansDir = join(vaultPath, "Plans");
+  if (!(await exists(plansDir))) return [];
+
+  const entries = await readdir(plansDir, { withFileTypes: true });
+  const planDirs = entries.filter(
+    (e: { isDirectory(): boolean; name: string }) => e.isDirectory() && e.name !== "_templates"
+  );
+
+  const plans: Plan[] = [];
+
+  for (const dir of planDirs) {
+    const planFile = join(plansDir, dir.name, `${dir.name}.md`);
+    if (!(await exists(planFile))) continue;
+
+    const content = await readFile(planFile, "utf-8");
+    const { frontmatter, body } = parseYamlFrontmatter(content);
+
+    if (frontmatter.type !== "plan") continue;
+
+    const visionSection = getSection(body, "Vision");
+    const vision = visionSection.split("\n")[0] ?? "";
+
+    const goalsSection = getSection(body, "Goals");
+    const goals = goalsSection
+      .split("\n")
+      .filter((l) => /^\d+\./.test(l.trim()))
+      .map((l) => l.replace(/^\d+\.\s*/, "").trim());
+
+    const partsRows = parseMarkdownTable(body, /Part/i);
+
+    // Read part notes from Parts/ subdirectory
+    const partsPath = join(plansDir, dir.name, "Parts");
+    const partDetails: Part[] = [];
+
+    for (const row of partsRows) {
+      const num = row["#"] ?? "";
+      const nameRaw = row["part"] ?? "";
+      const wikiMatch = nameRaw.match(/\[\[([^\]]+)\]\]/);
+      const partName = wikiMatch ? wikiMatch[1] : nameRaw;
+      const rowStatus = (row["status"] ?? "draft") as PartStatus;
+      const rowSize = (row["size"] ?? "M") as PartSize;
+      const rowAgent = row["agent"] ?? "";
+      const dependsRaw = row["depends"] ?? "-";
+      const depends = dependsRaw === "-" || dependsRaw === "" ? [] : dependsRaw.split(",").map((d) => d.trim());
+      const parallel = row["parallel"] ?? "-";
+
+      // Try to read part note
+      let metaData: MetaData | null = null;
+      if (await exists(partsPath)) {
+        const partEntries = await readdir(partsPath, { withFileTypes: true });
+        const partDir = partEntries.find(
+          (e: { isDirectory(): boolean; name: string }) => e.isDirectory() && e.name.startsWith(`${num} -`)
+        );
+        if (partDir) {
+          const partNote = join(partsPath, partDir.name, `${partDir.name}.md`);
+          const parsed = await parseObsidianPartNote(partNote);
+          if (parsed) metaData = parsed.meta;
+        }
+      }
+
+      const slug = `${num}-${partName.toLowerCase().replace(/\s+/g, "-").replace(/^\d+\s*-\s*/, "")}`;
+
+      partDetails.push({
+        number: num,
+        slug,
+        name: partName.replace(/^\d+\s*-\s*/, ""),
+        status: metaData?.status ?? rowStatus,
+        size: metaData?.size ?? rowSize,
+        depends: metaData?.depends ?? depends,
+        parallel: metaData?.parallel ?? parallel,
+        goal: metaData?.goal ?? "",
+        agent: metaData?.agent ?? rowAgent,
+        tasks: metaData?.tasks ?? [],
+        tasksDone: metaData?.tasks.filter((t) => t.status === "done").length ?? 0,
+        tasksTotal: metaData?.tasks.length ?? 0,
+      });
+    }
+
+    const doneParts = partDetails.filter((p) => p.status === "done").length;
+
+    plans.push({
+      name: dir.name,
+      vision,
+      goals,
+      planStatus: (frontmatter.status as string) ?? "active",
+      progress: `${doneParts}/${partDetails.length}`,
+      parts: partDetails,
+    });
+  }
+
+  return plans;
+}
+
+export async function parseObsidianProjectVision(vaultPath: string): Promise<ProjectVision | null> {
+  const projectPath = join(vaultPath, "Project.md");
+  if (!(await exists(projectPath))) return null;
+  const content = await readFile(projectPath, "utf-8");
+  const { body } = parseYamlFrontmatter(content);
+  return parseProject(body);
 }
 
 export async function parsePlans(planDir: string): Promise<Plan[]> {
