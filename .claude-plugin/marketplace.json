@@ -5,14 +5,14 @@
   },
   "metadata": {
     "description": "Lightweight project planning system for Claude Code",
-    "version": "1.8.0"
+    "version": "1.9.0"
   },
   "plugins": [
     {
       "name": "claude-plan",
       "source": "./",
       "description": "Lightweight project planning system with multi-plan support, dependency tracking, cascade unblocking, parallelism, research notes, and ADR",
-      "version": "1.8.0",
+      "version": "1.9.0",
       "author": {
         "name": "Abylay"
       },
@@ -41,10 +41,12 @@
         "./commands/delegate.md",
         "./commands/web.md",
         "./commands/obsidian.md",
-        "./commands/project.md"
+        "./commands/project.md",
+        "./commands/brainstorm.md"
       ],
       "skills": [
-        "./skills/plan"
+        "./skills/plan",
+        "./skills/brainstorm"
       ]
     }
   ]

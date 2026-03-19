@@ -21,6 +21,7 @@
 - **Parallel execution** — run independent parts via git worktrees
 - **Research & ADR** — research notes and Architecture Decision Records per plan
 - **Session sidebar** — browse Claude Code sessions grouped by project
+- **Brainstorming** — collaborative design process with spec review before implementation
 - **Obsidian integration** — optional Obsidian vault backend with YAML frontmatter, wikilinks, and Dataview dashboards
 
 ## Quick Start
@@ -48,6 +49,7 @@ claude plugin install claude-plan
 | `/claude-plan:done` | Mark part as done, cascade unblock dependent parts, write to CHANGELOG |
 | `/claude-plan:list` | Show all plans with progress |
 | `/claude-plan:project` | Define or update project vision, strategic goals, and roadmap |
+| `/claude-plan:brainstorm` | Turn ideas into validated design specs through collaborative dialogue |
 | `/claude-plan:setup` | Add AI instructions to the project's CLAUDE.md |
 | `/claude-plan:obsidian` | Configure Obsidian vault backend, toggle modes, migrate data |
 | `/claude-plan:web` | Launch Kanban web dashboard for plan visualization |
