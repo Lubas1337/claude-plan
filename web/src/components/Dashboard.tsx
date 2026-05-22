@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import type { Part, PartStatus, Plan, ProjectVision, RoadmapPhase } from "../types";
 import { ProgressBar } from "./ProgressBar";
 
@@ -110,6 +111,18 @@ function ProjectOverview({
 }
 
 export function Dashboard({ plans, project, onPlanSelect }: DashboardProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredPlans = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    if (!normalizedQuery) {
+      return plans;
+    }
+    return plans.filter((plan) =>
+      plan.name.toLowerCase().includes(normalizedQuery)
+    );
+  }, [plans, searchQuery]);
+
   if (plans.length === 0 && !project) {
     return (
       <div className="empty-state">
@@ -126,49 +139,75 @@ export function Dashboard({ plans, project, onPlanSelect }: DashboardProps) {
       {project && (
         <ProjectOverview project={project} plans={plans} onPlanSelect={onPlanSelect} />
       )}
-      <div className="dashboard">
-        {plans.map((plan) => {
-          const doneParts = plan.parts.filter((p) => p.status === "done").length;
-          const totalParts = plan.parts.length;
-          const counts = statusCounts(plan.parts);
-
-          return (
-            <div
-              key={plan.name}
-              className="dashboard-card"
-              onClick={() => onPlanSelect(plan.name)}
+      <div className="dashboard-container">
+        <div className="dashboard-search-bar">
+          <input
+            type="text"
+            placeholder="Search plans..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="dashboard-search-input"
+          />
+          {searchQuery && (
+            <button
+              className="dashboard-search-clear"
+              onClick={() => setSearchQuery("")}
             >
-              <div className="dashboard-card-header">
-                <span className="dashboard-card-name">{plan.name}</span>
-                <span
-                  className={`dashboard-card-status ${plan.planStatus === "completed" ? "completed" : "active"}`}
+              Clear
+            </button>
+          )}
+        </div>
+
+        {filteredPlans.length === 0 && searchQuery ? (
+          <div className="dashboard-no-results">
+            <div className="dashboard-no-results-text">No plans found</div>
+          </div>
+        ) : (
+          <div className="dashboard">
+            {filteredPlans.map((plan) => {
+              const doneParts = plan.parts.filter((p) => p.status === "done").length;
+              const totalParts = plan.parts.length;
+              const counts = statusCounts(plan.parts);
+
+              return (
+                <div
+                  key={plan.name}
+                  className="dashboard-card"
+                  onClick={() => onPlanSelect(plan.name)}
                 >
-                  {plan.planStatus}
-                </span>
-              </div>
-
-              {plan.vision && (
-                <div className="dashboard-card-vision">{plan.vision}</div>
-              )}
-
-              <ProgressBar done={doneParts} total={totalParts} />
-
-              <div className="dashboard-card-stats">
-                {(
-                  Object.entries(counts) as [PartStatus, number][]
-                ).map(([status, count]) => (
-                  <span key={status} className="dashboard-card-stat">
+                  <div className="dashboard-card-header">
+                    <span className="dashboard-card-name">{plan.name}</span>
                     <span
-                      className="dashboard-card-dot"
-                      style={{ background: STATUS_COLORS[status] }}
-                    />
-                    {count}
-                  </span>
-                ))}
-              </div>
-            </div>
-          );
-        })}
+                      className={`dashboard-card-status ${plan.planStatus === "completed" ? "completed" : "active"}`}
+                    >
+                      {plan.planStatus}
+                    </span>
+                  </div>
+
+                  {plan.vision && (
+                    <div className="dashboard-card-vision">{plan.vision}</div>
+                  )}
+
+                  <ProgressBar done={doneParts} total={totalParts} />
+
+                  <div className="dashboard-card-stats">
+                    {(
+                      Object.entries(counts) as [PartStatus, number][]
+                    ).map(([status, count]) => (
+                      <span key={status} className="dashboard-card-stat">
+                        <span
+                          className="dashboard-card-dot"
+                          style={{ background: STATUS_COLORS[status] }}
+                        />
+                        {count}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </>
   );
